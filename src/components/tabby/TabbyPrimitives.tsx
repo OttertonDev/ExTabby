@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
-import { tabbyAssets } from '@/lib/tabby';
 
 interface TabbyHeaderBadgeProps {
   symbol: string;
@@ -20,12 +19,12 @@ export function TabbyHeaderBadge({ symbol, shape = 'arch', className }: TabbyHea
   return (
     <div
       className={cn(
-        'grid size-12 shrink-0 place-items-center bg-primary text-primary-foreground shadow-sm',
+        'grid size-10 shrink-0 place-items-center text-[#0b1b31]',
         shapeClasses[shape],
         className
       )}
     >
-      <MaterialSymbol name={symbol} className="size-6" />
+      <MaterialSymbol name={symbol} className="text-[1.8rem]" />
     </div>
   );
 }
@@ -63,19 +62,20 @@ export function TabbyEmptyState({
   title,
   body,
   compact = false,
+  icon = 'inbox',
 }: {
   title: string;
   body: string;
   compact?: boolean;
+  icon?: string;
 }) {
   return (
     <div className="overflow-hidden rounded-[1.75rem] bg-surface-variant text-center ring-1 ring-border/25">
       {!compact && (
-        <div className="mx-auto h-36 max-w-sm overflow-hidden bg-tabby-mint">
-          <img
-            src={tabbyAssets.welcome}
-            alt=""
-            className="h-full w-full object-cover object-center"
+        <div className="mx-auto flex h-36 max-w-sm items-center justify-center bg-tabby-mint">
+          <MaterialSymbol
+            name={icon}
+            className="text-[5rem] text-primary/30"
           />
         </div>
       )}
@@ -101,7 +101,7 @@ export function TabbySection({
       {title && (
         <h3 className="mb-3 text-title-large font-black text-foreground">{title}</h3>
       )}
-      <div className="overflow-hidden rounded-[1.375rem] bg-surface-variant ring-1 ring-border/20">
+      <div className="overflow-hidden rounded-[1.375rem] bg-surface-variant ring-1 ring-border/20 shadow-md">
         {children}
       </div>
     </section>

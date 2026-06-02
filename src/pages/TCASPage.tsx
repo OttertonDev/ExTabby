@@ -76,13 +76,13 @@ function statusSymbol(status: string) {
 export function TCASPage() {
   return (
     <motion.div
-      className="h-full overflow-auto px-4 py-5 sm:px-6"
+      className="h-full overflow-auto px-5 py-5 sm:px-8 lg:px-[108px]"
       initial="initial"
       animate="animate"
       exit="exit"
       variants={pageVariants}
     >
-      <div className="mx-auto max-w-5xl">
+      <div className="w-full">
         <TabbyPageHeader
           title="TCAS"
           subtitle="Road to University. This web view is styled after Android Tabby; real public myTCAS data is a future implementation."

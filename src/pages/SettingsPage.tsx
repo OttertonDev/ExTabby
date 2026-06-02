@@ -7,6 +7,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { useClasses, useSubjects, useTasks, useUserPreferences } from '@/hooks/useFirestoreSync';
 import { signOut } from '@/lib/auth';
+import { CircularProgress } from '@/lib/material-web-react';
 
 type SyncTimestamp = Date | number | string | { toDate: () => Date };
 
@@ -53,8 +54,8 @@ export function SettingsPage() {
   const connected = Boolean(preferences?.lastSyncedAt);
 
   return (
-    <div className="h-full overflow-auto px-4 py-5 sm:px-6">
-      <div className="mx-auto max-w-4xl">
+    <div className="h-full min-h-full overflow-auto px-5 pb-2 pt-5 sm:px-8 sm:py-5 lg:px-[108px]">
+      <div className="w-full pb-4">
         <TabbyPageHeader
           title="Settings"
           subtitle="Account, sync status, and preferences mirrored from Android Tabby."
@@ -94,7 +95,7 @@ export function SettingsPage() {
             <div className="px-4 py-4">
               {prefsLoading ? (
                 <div className="flex items-center gap-3 text-muted-foreground">
-                  <MaterialSymbol name="sync" className="animate-spin text-[1.35rem]" />
+                  <CircularProgress indeterminate className="size-5" />
                   <span className="font-bold">Checking sync status...</span>
                 </div>
               ) : connected ? (

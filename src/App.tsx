@@ -10,6 +10,16 @@ import { SettingsPage } from './pages/SettingsPage';
 import { Button } from './components/ui/button';
 import { tabbyAssets } from './lib/tabby';
 
+function AwaitingImplementationPage() {
+  return (
+    <div className="flex h-full min-h-full items-center justify-center px-6 text-center">
+      <p className="font-display text-headline-medium font-black text-muted-foreground">
+        Awaits Implementation
+      </p>
+    </div>
+  );
+}
+
 function LoginPage() {
   return (
     <div className="min-h-screen overflow-hidden bg-background">
@@ -54,9 +64,11 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Navigate to="/timetable" replace />} />
+        <Route path="/home" element={<AwaitingImplementationPage />} />
         <Route path="/timetable" element={<TimetablePage />} />
         <Route path="/assignments" element={<AssignmentsPage />} />
         <Route path="/tcas" element={<TCASPage />} />
+        <Route path="/classroom" element={<AwaitingImplementationPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Routes>
     </AnimatePresence>

@@ -1,5 +1,6 @@
 export const tabbyAssets = {
   icon: '/tabby-assets/tabby-ico.png',
+  transparentLogo: '/tabby-assets/tabby-logo-transparent.png',
   welcome: '/tabby-assets/tabby-headline-welcome.png',
 };
 

@@ -30,6 +30,9 @@ export default defineConfig({
       }
     })
   ],
+  optimizeDeps: {
+    include: ['@material/web', '@material/material-color-utilities', 'lit']
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src')

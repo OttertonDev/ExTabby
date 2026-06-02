@@ -6,6 +6,7 @@ import {
   TabbySection,
 } from '@/components/tabby/TabbyPrimitives';
 import { useTasks } from '@/hooks/useFirestoreSync';
+import { AssistChip } from '@/lib/material-web-react';
 
 const pageVariants = {
   initial: { opacity: 0, y: 12 },
@@ -16,6 +17,14 @@ const pageVariants = {
 const itemVariants = {
   hidden: { opacity: 0, x: -12 },
   show: { opacity: 1, x: 0 },
+};
+
+// Material 3 Expressive motion - smoother with less overshoot
+const expressiveTransition = {
+  type: 'spring' as const,
+  stiffness: 260,
+  damping: 26,
+  mass: 1,
 };
 
 function formatDate(timestamp: number) {
@@ -49,8 +58,8 @@ function TaskRow({ task, completedView = false }: { task: ReturnType<typeof useT
     <motion.div
       variants={itemVariants}
       className="border-b border-border/20 px-4 py-4 last:border-b-0"
-      whileHover={{ x: 4 }}
-      transition={{ type: 'spring', stiffness: 240, damping: 24 }}
+      whileHover={{ x: 4, scale: 1.005 }}
+      transition={expressiveTransition}
     >
       <div className="flex items-start gap-3">
         <div className="mt-1 grid size-8 shrink-0 place-items-center rounded-full bg-background/70 text-primary">
@@ -61,12 +70,8 @@ function TaskRow({ task, completedView = false }: { task: ReturnType<typeof useT
             <h3 className={`truncate text-title-medium font-black ${task.isComplete ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
               {task.title}
             </h3>
-            <span className="rounded-full bg-tabby-mint px-2.5 py-1 text-xs font-black text-primary">
-              {isExam ? 'Exam' : 'Homework'}
-            </span>
-            <span className="rounded-full bg-background/70 px-2.5 py-1 text-xs font-black text-muted-foreground">
-              {task.isComplete ? 'Done' : 'To do'}
-            </span>
+            <AssistChip label={isExam ? 'Exam' : 'Homework'} className="h-7 rounded-full bg-tabby-mint font-black" />
+            <AssistChip label={task.isComplete ? 'Done' : 'To do'} className="h-7 rounded-full bg-background/70 font-black" />
           </div>
           {task.notes && (
             <p className="mt-1 line-clamp-2 text-body-small text-muted-foreground">{task.notes}</p>
@@ -90,13 +95,14 @@ export function AssignmentsPage() {
 
   return (
     <motion.div
-      className="h-full overflow-auto px-4 py-5 sm:px-6"
+      className="h-full min-h-full overflow-auto px-5 pb-2 pt-5 sm:px-8 sm:py-5 lg:px-[108px]"
       initial="initial"
       animate="animate"
       exit="exit"
       variants={pageVariants}
+      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
     >
-      <div className="mx-auto max-w-4xl">
+      <div className="w-full pb-4">
         <TabbyPageHeader
           title="Assignments"
           subtitle="Homework and exams synced from Android Tabby."
@@ -110,12 +116,13 @@ export function AssignmentsPage() {
           <TabbyEmptyState
             title="No assignments yet"
             body="Create homework or exams in your Android app and enable Web Tabby sync to see them here."
+            icon="assignment"
           />
         ) : (
           <div className="space-y-7">
             {pendingTasks.length > 0 && (
               <TabbySection title={`Pending (${pendingTasks.length})`}>
-                <motion.div initial="hidden" animate="show" transition={{ staggerChildren: 0.04 }}>
+                <motion.div initial="hidden" animate="show" transition={{ staggerChildren: 0.06, delayChildren: 0.1 }}>
                   <AnimatePresence>
                     {pendingTasks.map((task) => (
                       <TaskRow key={task.id} task={task} />
@@ -127,7 +134,7 @@ export function AssignmentsPage() {
 
             {completedTasks.length > 0 && (
               <TabbySection title={`Completed (${completedTasks.length})`}>
-                <motion.div initial="hidden" animate="show" transition={{ staggerChildren: 0.04 }}>
+                <motion.div initial="hidden" animate="show" transition={{ staggerChildren: 0.06, delayChildren: 0.1 }}>
                   <AnimatePresence>
                     {completedTasks.map((task) => (
                       <TaskRow key={task.id} task={task} completedView />

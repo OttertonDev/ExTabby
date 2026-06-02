@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
 import { NavigationRail } from './NavigationRail';
 import { useAuth } from '@/hooks/useAuth';
-import { signOut } from '@/lib/auth';
-import { Button } from '@/components/ui/button';
 import { MaterialSymbol } from '@/components/tabby/TabbyPrimitives';
 
 interface AppLayoutProps {
@@ -13,44 +11,37 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuth();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background text-foreground">
+    <div className="relative h-screen overflow-hidden overscroll-none bg-[#f3f8ff] text-foreground">
       <NavigationRail />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="flex h-[4.4rem] items-center justify-between border-b border-border/20 bg-surface px-4 sm:px-6">
-          <div className="w-24 md:w-32" />
-          <h1 className="font-display text-[2rem] font-black leading-none tracking-normal text-foreground">
-            Tabby
-          </h1>
+      <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden overscroll-none px-4 pb-[5.25rem] pt-3 md:absolute md:inset-0 md:block md:px-0 md:pb-0 md:pt-0">
+        <header className="relative z-10 flex h-[5.5rem] shrink-0 items-center justify-center md:block md:h-0">
+          <div className="flex h-14 w-full max-w-[37.5rem] items-center rounded-full bg-[#cfe3ff] px-5 text-[#364963] md:absolute md:left-1/2 md:top-7 md:w-[600px] md:max-w-none md:-translate-x-1/2">
+            <span className="flex-1 text-body-large font-medium">Search</span>
+            <MaterialSymbol name="search" className="text-[1.35rem]" />
+          </div>
 
           {user && (
-            <div className="flex w-24 items-center justify-end gap-2 md:w-32">
-              <div className="flex items-center gap-3">
+            <div className="absolute right-0 top-1/2 flex -translate-y-1/2 items-center md:right-[37px] md:top-3.5 md:translate-y-0">
+              <div className="rounded-full bg-[conic-gradient(#2ca363_0_33%,#1a73e8_0_66%,#ff7a00_0_100%)] p-[3px]">
                 {user.photoURL && (
                   <img
                     src={user.photoURL}
                     alt={user.displayName || 'User'}
-                    className="size-9 rounded-full ring-2 ring-tabby-mint"
+                    className="size-[4.9rem] rounded-full bg-white object-cover p-[3px] md:size-[5.15rem]"
                   />
                 )}
-                <span className="hidden max-w-28 truncate text-body-small font-bold text-muted-foreground lg:inline">
-                  {user.displayName}
-                </span>
+                {!user.photoURL && (
+                  <div className="grid size-[4.9rem] place-items-center rounded-full bg-white p-[3px] text-primary md:size-[5.15rem]">
+                    <MaterialSymbol name="person" className="text-[2rem]" />
+                  </div>
+                )}
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={signOut}
-                title="Sign out"
-                className="rounded-full"
-              >
-                <MaterialSymbol name="logout" className="text-[1.25rem]" />
-              </Button>
             </div>
           )}
         </header>
 
-        <main className="flex-1 overflow-auto pb-16 md:pb-0">
+        <main className="min-h-0 flex-1 overflow-hidden rounded-[2rem] bg-white shadow-sm md:absolute md:bottom-[37px] md:left-[285px] md:right-[37px] md:top-28 md:rounded-[3.5rem]">
           {children}
         </main>
       </div>

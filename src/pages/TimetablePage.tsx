@@ -1,6 +1,7 @@
 import { TabbyEmptyState, TabbyPageHeader, TabbySection } from '@/components/tabby/TabbyPrimitives';
 import { useClasses, useUserPreferences } from '@/hooks/useFirestoreSync';
 import { androidColorToHex, formatMinutes, tintFromHex } from '@/lib/tabby';
+import { AssistChip } from '@/lib/material-web-react';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -28,8 +29,8 @@ export function TimetablePage() {
   });
 
   return (
-    <div className="h-full overflow-auto px-4 py-5 sm:px-6">
-      <div className="mx-auto max-w-7xl">
+    <div className="h-full min-h-full overflow-auto px-5 pb-2 pt-5 sm:px-8 sm:py-5 lg:px-[108px]">
+      <div className="w-full pb-4">
         <TabbyPageHeader
           title="Timetable"
           subtitle={metadata || 'Classes synced from your Android Tabby app.'}
@@ -79,9 +80,10 @@ export function TimetablePage() {
                                 <h4 className="truncate text-title-medium font-black text-foreground">
                                   {cls.subject}
                                 </h4>
-                                <span className="shrink-0 rounded-full bg-background/70 px-2.5 py-1 text-xs font-black text-primary">
-                                  {formatMinutes(cls.startMinutes)}
-                                </span>
+                                <AssistChip
+                                  label={formatMinutes(cls.startMinutes)}
+                                  className="h-7 shrink-0 rounded-full bg-background/70 font-black"
+                                />
                               </div>
                               <p className="mt-1 text-body-medium font-medium text-foreground">
                                 {formatMinutes(cls.startMinutes)} - {formatMinutes(cls.endMinutes)}

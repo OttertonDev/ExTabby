@@ -1,0 +1,61 @@
+/* Import auto-generated Material 3 color tokens */
+@import url('./material-tokens.css');
+
+/* Material Design 3 Expressive Motion Tokens */
+:root {
+  /* Duration tokens - Expressive uses longer durations */
+  --md-sys-motion-duration-short1: 50ms;
+  --md-sys-motion-duration-short2: 100ms;
+  --md-sys-motion-duration-short3: 150ms;
+  --md-sys-motion-duration-short4: 200ms;
+  --md-sys-motion-duration-medium1: 250ms;
+  --md-sys-motion-duration-medium2: 300ms;
+  --md-sys-motion-duration-medium3: 400ms;
+  --md-sys-motion-duration-medium4: 500ms;
+  --md-sys-motion-duration-long1: 600ms;
+  --md-sys-motion-duration-long2: 700ms;
+  --md-sys-motion-duration-long3: 800ms;
+  --md-sys-motion-duration-long4: 900ms;
+
+  /* Easing curves - Match Android MotionScheme.expressive() */
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized: cubic-bezier(0.4, 0, 0.2, 1.4);
+  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --md-sys-motion-easing-legacy: cubic-bezier(0.4, 0, 0.2, 1);
+  --md-sys-motion-easing-linear: cubic-bezier(0, 0, 1, 1);
+
+  /* Path tokens for consistent animation curves */
+  --md-sys-motion-path-arc-small: 4px;
+  --md-sys-motion-path-arc-medium: 8px;
+  --md-sys-motion-path-arc-large: 16px;
+
+  /* Typography overrides for Material Web components */
+  --md-sys-typescale-label-large-font: "Google Sans Flex", system-ui, sans-serif;
+  --md-sys-typescale-label-large-weight: 900;
+  --md-sys-typescale-label-medium-font: "Google Sans Flex", system-ui, sans-serif;
+  --md-sys-typescale-label-medium-weight: 900;
+  --md-sys-typescale-label-small-font: "Google Sans Flex", system-ui, sans-serif;
+  --md-sys-typescale-label-small-weight: 900;
+}
+
+/* Force Material Web buttons to use Google Sans Flex with bold weight */
+md-filled-button,
+md-outlined-button,
+md-elevated-button,
+md-filled-tonal-button,
+md-text-button {
+  font-family: "Google Sans Flex", system-ui, sans-serif !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.02em;
+}
+
+/* Force Material Web chips to use Google Sans Flex with bold weight */
+md-assist-chip,
+md-filter-chip,
+md-input-chip,
+md-suggestion-chip {
+  font-family: "Google Sans Flex", system-ui, sans-serif !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.02em;
+}

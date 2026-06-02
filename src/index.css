@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./styles/material-theme.css";
 
 @font-face {
   font-family: "Google Sans Flex";
@@ -23,57 +24,58 @@
 
 @layer base {
   :root {
-    --background: 300 100% 99%;
-    --foreground: 204 11% 12%;
-    --card: 300 100% 99%;
-    --card-foreground: 204 11% 12%;
-    --popover: 300 100% 99%;
-    --popover-foreground: 204 11% 12%;
-    --primary: 169 50% 28%;
+    /* Use Material 3 color tokens */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 210 40% 98%;
+    --card-foreground: 222 47% 11%;
+    --popover: 210 40% 98%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 207 100% 34%;  /* Material blue #005faf */
     --primary-foreground: 0 0% 100%;
-    --secondary: 39 58% 50%;
-    --secondary-foreground: 204 11% 12%;
-    --muted: 140 12% 89%;
-    --muted-foreground: 137 6% 27%;
-    --accent: 164 37% 90%;
-    --accent-foreground: 204 11% 12%;
-    --destructive: 4 74% 44%;
+    --secondary: 215 20% 39%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 37%;
     --destructive-foreground: 0 0% 98%;
-    --border: 137 6% 46%;
-    --input: 140 12% 89%;
-    --ring: 169 50% 28%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 207 100% 34%;
     --radius: 1.375rem;
-    --surface: 300 100% 99%;
-    --surface-variant: 140 12% 89%;
-    --on-surface-variant: 137 6% 27%;
-    --tabby-mint: 164 37% 90%;
+    --surface: 210 40% 98%;
+    --surface-variant: 220 14% 89%;
+    --on-surface-variant: 215 16% 47%;
+    --tabby-mint: 207 100% 85%;  /* Lighter blue for accents */
     --tabby-gold: 39 58% 50%;
-    --tabby-charcoal: 204 11% 12%;
+    --tabby-charcoal: 222 47% 11%;
   }
 
   .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
-    --card: 180 7% 8%;
-    --card-foreground: 0 0% 98%;
-    --popover: 180 7% 8%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 164 37% 90%;
-    --primary-foreground: 204 11% 12%;
-    --secondary: 39 58% 50%;
-    --secondary-foreground: 40 64% 88%;
-    --muted: 160 7% 26%;
-    --muted-foreground: 140 8% 77%;
-    --accent: 169 50% 28%;
-    --accent-foreground: 164 37% 90%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 140 8% 56%;
-    --input: 160 7% 26%;
-    --ring: 164 37% 90%;
-    --surface: 0 0% 0%;
-    --surface-variant: 160 7% 26%;
-    --on-surface-variant: 140 8% 77%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 207 100% 80%;  /* Lighter blue for dark mode */
+    --primary-foreground: 222 47% 11%;
+    --secondary: 215 20% 65%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 215 25% 27%;
+    --muted-foreground: 217 10% 65%;
+    --accent: 215 25% 27%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 215 25% 27%;
+    --input: 215 25% 27%;
+    --ring: 207 100% 80%;
+    --surface: 222 47% 11%;
+    --surface-variant: 215 25% 27%;
+    --on-surface-variant: 217 10% 65%;
   }
 
   * {
@@ -88,6 +90,44 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+    overflow: hidden;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    background-color: hsl(var(--background));
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  html {
+    overscroll-behavior: none;
+    background-color: hsl(var(--background));
+    min-height: 100%;
+  }
+
+  #root {
+    position: relative;
+  }
+
+  #root::after {
+    content: '';
+    position: fixed;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    background-color: hsl(var(--background));
+    z-index: -1;
+    pointer-events: none;
   }
 
   .material-symbol {
