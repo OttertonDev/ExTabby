@@ -9,6 +9,14 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+        runtimeCaching: [],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
+        navigateFallback: 'index.html',
+      },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
         name: 'Tabby',

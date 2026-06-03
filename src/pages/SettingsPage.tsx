@@ -61,6 +61,7 @@ export function SettingsPage() {
           subtitle="Account, sync status, and preferences mirrored from Android Tabby."
           symbol="settings"
           shape="circle"
+          titleVariation='"wght" 1000, "wdth" 25, "ROND" 100'
         />
 
         <div className="space-y-7">

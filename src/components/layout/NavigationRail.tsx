@@ -32,7 +32,7 @@ export function NavigationRail() {
             alt="Tabby"
             className="size-[78px] object-contain"
           />
-          <span className="ml-[7px] font-display text-[29px] font-black leading-none text-foreground">
+          <span className="ml-[7px] font-display text-[29px] font-black leading-none text-foreground" style={{ fontVariationSettings: '"wght" 1000, "ROND" 100' }}>
             Tabby
           </span>
         </Link>
@@ -75,7 +75,7 @@ export function NavigationRail() {
                   name={item.symbol}
                   className="ml-4 size-[25px] text-[25px] transition-[font-variation-settings] duration-200"
                 />
-                <span className="ml-2.5 min-w-0 truncate text-[16px] font-normal leading-none">
+                <span className={cn('ml-2.5 min-w-0 truncate text-[16px] leading-none', isActive ? 'font-black' : 'font-normal')}>
                   {item.label}
                 </span>
               </Link>
@@ -117,7 +117,7 @@ export function NavigationRail() {
                     className="text-[1.45rem] transition-[font-variation-settings] duration-200"
                   />
                 </span>
-                <span className="mt-1 max-w-full truncate px-1 text-label-small font-black leading-none">{item.label}</span>
+                <span className={cn('mt-1 max-w-full truncate px-1 text-label-small leading-none', isActive ? 'font-black' : 'font-normal')}>{item.label}</span>
               </Link>
             );
           })}

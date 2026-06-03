@@ -22,18 +22,18 @@ export function AppLayout({ children }: AppLayoutProps) {
           </div>
 
           {user && (
-            <div className="absolute right-0 top-1/2 flex -translate-y-1/2 items-center md:right-[37px] md:top-3.5 md:translate-y-0">
-              <div className="rounded-full bg-[conic-gradient(#2ca363_0_33%,#1a73e8_0_66%,#ff7a00_0_100%)] p-[3px]">
+            <div className="absolute right-0 top-1/2 flex -translate-y-1/2 items-center md:right-[45px] md:top-[56px] md:-translate-y-1/2">
+              <div className="rounded-full p-[3px]" style={{ background: 'conic-gradient(#3174F1 0% 25%, #249A41 25% 50%, #F6AD01 50% 75%, #E92D18 75% 100%)' }}>
                 {user.photoURL && (
                   <img
                     src={user.photoURL}
                     alt={user.displayName || 'User'}
-                    className="size-[4.9rem] rounded-full bg-white object-cover p-[3px] md:size-[5.15rem]"
+                    className="size-[3.25rem] rounded-full bg-white object-cover p-[3px] md:size-[3.5rem]"
                   />
                 )}
                 {!user.photoURL && (
-                  <div className="grid size-[4.9rem] place-items-center rounded-full bg-white p-[3px] text-primary md:size-[5.15rem]">
-                    <MaterialSymbol name="person" className="text-[2rem]" />
+                  <div className="grid size-[3.25rem] place-items-center rounded-full bg-white p-[3px] text-primary md:size-[3.5rem]">
+                    <MaterialSymbol name="person" className="text-[1.6rem]" />
                   </div>
                 )}
               </div>

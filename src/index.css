@@ -1,10 +1,63 @@
 @import "tailwindcss";
 @import "./styles/material-theme.css";
 
+@theme {
+  --font-display: "Google Sans Flex", system-ui, sans-serif;
+  --font-sans: "Google Sans Flex", system-ui, sans-serif;
+  --font-orbit: "FC Orbit", "Google Sans Flex", system-ui, sans-serif;
+  --font-symbols: "Material Symbols Rounded";
+
+  /* Colors — Tailwind 4 generates utilities from --color-* tokens */
+  --color-background: hsl(210 40% 98%);
+  --color-foreground: hsl(222 47% 11%);
+  --color-card: hsl(210 40% 98%);
+  --color-card-foreground: hsl(222 47% 11%);
+  --color-popover: hsl(210 40% 98%);
+  --color-popover-foreground: hsl(222 47% 11%);
+  --color-primary: hsl(207 100% 34%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-secondary: hsl(215 20% 39%);
+  --color-secondary-foreground: hsl(0 0% 100%);
+  --color-muted: hsl(220 14% 96%);
+  --color-muted-foreground: hsl(215 16% 47%);
+  --color-accent: hsl(210 40% 96%);
+  --color-accent-foreground: hsl(222 47% 11%);
+  --color-destructive: hsl(0 84% 37%);
+  --color-destructive-foreground: hsl(0 0% 98%);
+  --color-border: hsl(220 13% 91%);
+  --color-input: hsl(220 13% 91%);
+  --color-ring: hsl(207 100% 34%);
+  --color-surface: hsl(210 40% 98%);
+  --color-surface-variant: hsl(220 14% 89%);
+  --color-surface-muted: hsl(215 16% 47%);
+  --color-tabby-mint: hsl(207 100% 85%);
+  --color-tabby-gold: hsl(39 58% 50%);
+  --color-tabby-charcoal: hsl(222 47% 11%);
+}
+
+@layer utilities {
+  .text-display-large { font-size: 57px; line-height: 64px; }
+  .text-display-medium { font-size: 45px; line-height: 52px; }
+  .text-display-small { font-size: 36px; line-height: 44px; }
+  .text-headline-large { font-size: 32px; line-height: 40px; }
+  .text-headline-medium { font-size: 28px; line-height: 36px; }
+  .text-headline-small { font-size: 24px; line-height: 32px; }
+  .text-title-large { font-size: 22px; line-height: 28px; }
+  .text-title-medium { font-size: 16px; line-height: 24px; }
+  .text-title-small { font-size: 14px; line-height: 20px; }
+  .text-body-large { font-size: 16px; line-height: 24px; }
+  .text-body-medium { font-size: 14px; line-height: 20px; }
+  .text-body-small { font-size: 12px; line-height: 16px; }
+  .text-label-large { font-size: 14px; line-height: 20px; }
+  .text-label-medium { font-size: 12px; line-height: 16px; }
+  .text-label-small { font-size: 11px; line-height: 16px; }
+}
+
 @font-face {
   font-family: "Google Sans Flex";
   src: url("/tabby-assets/fonts/google-sans-flex.ttf") format("truetype");
-  font-weight: 100 1000;
+  font-weight: 1 1000;
+  font-style: normal;
   font-display: swap;
 }
 

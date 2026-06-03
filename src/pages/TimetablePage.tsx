@@ -36,6 +36,7 @@ export function TimetablePage() {
           subtitle={metadata || 'Classes synced from your Android Tabby app.'}
           symbol="calendar_clock"
           shape="arch"
+          titleVariation='"wght" 1000, "wdth" 25, "ROND" 100'
         />
 
         {loading ? (
@@ -69,22 +70,15 @@ export function TimetablePage() {
                           <div
                             key={cls.id}
                             className="flex gap-4 border-b border-border/20 px-4 py-4 last:border-b-0"
-                            style={{ backgroundColor: tintFromHex(color, 0.1) }}
                           >
                             <div
                               className="mt-1 h-14 w-1 shrink-0 rounded-full"
                               style={{ backgroundColor: color }}
                             />
                             <div className="min-w-0 flex-1">
-                              <div className="flex items-start justify-between gap-3">
-                                <h4 className="truncate text-title-medium font-black text-foreground">
-                                  {cls.subject}
-                                </h4>
-                                <AssistChip
-                                  label={formatMinutes(cls.startMinutes)}
-                                  className="h-7 shrink-0 rounded-full bg-background/70 font-black"
-                                />
-                              </div>
+                              <h4 className="truncate text-title-medium font-black text-foreground">
+                                {cls.subject}
+                              </h4>
                               <p className="mt-1 text-body-medium font-medium text-foreground">
                                 {formatMinutes(cls.startMinutes)} - {formatMinutes(cls.endMinutes)}
                               </p>

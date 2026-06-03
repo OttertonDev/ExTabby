@@ -88,6 +88,7 @@ export function TCASPage() {
           subtitle="Road to University. This web view is styled after Android Tabby; real public myTCAS data is a future implementation."
           symbol="school"
           shape="gem"
+          titleVariation='"wght" 1000, "wdth" 25, "ROND" 100'
         />
 
         <div className="mb-6 rounded-[1.5rem] bg-tabby-mint px-5 py-4 text-body-medium text-primary ring-1 ring-primary/10">

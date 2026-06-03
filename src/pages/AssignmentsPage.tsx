@@ -108,6 +108,7 @@ export function AssignmentsPage() {
           subtitle="Homework and exams synced from Android Tabby."
           symbol="assignment"
           shape="ghost"
+          titleVariation='"wght" 1000, "wdth" 25, "ROND" 100'
         />
 
         {loading ? (

@@ -8,9 +8,11 @@ interface TabbyHeaderBadgeProps {
 }
 
 const shapeClasses = {
-  arch: 'rounded-t-[1.65rem] rounded-b-[0.95rem]',
-  gem: 'rounded-[1.1rem] rotate-45 [&>span]:-rotate-45',
-  ghost: 'rounded-t-[1.7rem] rounded-b-[0.9rem]',
+  // M3 Arch: 4-vertex polygon, top corners fully rounded (r=1.0), bottom corners lightly rounded (r=0.2)
+  // For 48px badge: top = 24px (50%), bottom = 4.8px (10%)
+  arch: 'rounded-t-[1.5rem] rounded-b-[0.3rem]',
+  gem: 'rounded-[1.2rem] rotate-45 [&>span]:-rotate-45',
+  ghost: 'rounded-t-[1.75rem] rounded-b-[0.85rem]',
   pill: 'rounded-full',
   circle: 'rounded-full',
 };
@@ -19,12 +21,12 @@ export function TabbyHeaderBadge({ symbol, shape = 'arch', className }: TabbyHea
   return (
     <div
       className={cn(
-        'grid size-10 shrink-0 place-items-center text-[#0b1b31]',
+        'grid size-12 shrink-0 place-items-center bg-primary text-primary-foreground',
         shapeClasses[shape],
         className
       )}
     >
-      <MaterialSymbol name={symbol} className="text-[1.8rem]" />
+      <MaterialSymbol name={symbol} className="text-[1.75rem]" />
     </div>
   );
 }
@@ -35,15 +37,19 @@ interface TabbyPageHeaderProps {
   symbol: string;
   shape?: TabbyHeaderBadgeProps['shape'];
   action?: ReactNode;
+  titleVariation?: string;
 }
 
-export function TabbyPageHeader({ title, subtitle, symbol, shape, action }: TabbyPageHeaderProps) {
+export function TabbyPageHeader({ title, subtitle, symbol, shape, action, titleVariation }: TabbyPageHeaderProps) {
   return (
     <div className="mb-6 flex items-start justify-between gap-4">
       <div className="flex min-w-0 items-center gap-3">
         <TabbyHeaderBadge symbol={symbol} shape={shape} />
         <div className="min-w-0">
-          <h2 className="truncate font-display text-headline-medium font-black leading-tight tracking-normal text-foreground">
+          <h2
+            className="truncate font-display text-headline-large font-black leading-tight tracking-normal text-foreground"
+            style={{ fontVariationSettings: titleVariation ?? '"wght" 1000' }}
+          >
             {title}
           </h2>
           {subtitle && (
@@ -101,7 +107,7 @@ export function TabbySection({
       {title && (
         <h3 className="mb-3 text-title-large font-black text-foreground">{title}</h3>
       )}
-      <div className="overflow-hidden rounded-[1.375rem] bg-surface-variant ring-1 ring-border/20 shadow-md">
+      <div className="overflow-hidden rounded-[1.375rem] bg-[hsl(210_40%_97%)] ring-1 ring-border/20 shadow-md">
         {children}
       </div>
     </section>
