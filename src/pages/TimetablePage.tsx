@@ -1,7 +1,6 @@
 import { TabbyEmptyState, TabbyPageHeader, TabbySection } from '@/components/tabby/TabbyPrimitives';
 import { useClasses, useUserPreferences } from '@/hooks/useFirestoreSync';
-import { androidColorToHex, formatMinutes, tintFromHex } from '@/lib/tabby';
-import { AssistChip } from '@/lib/material-web-react';
+import { androidColorToHex, formatMinutes } from '@/lib/tabby';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
