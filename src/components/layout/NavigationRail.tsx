@@ -2,10 +2,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { MaterialSymbol } from '@/components/tabby/TabbyPrimitives';
 import { tabbyAssets } from '@/lib/tabby';
+import { useRipple } from '@/hooks/useRipple';
+
 
 const navItems = [
   { path: '/home', symbol: 'home', label: 'Home', top: 205 },
-  { path: '/timetable', symbol: 'calendar_clock', label: 'Timetable', top: 245, selectedTop: 240, figmaSelected: true },
+  { path: '/timetable', symbol: 'calendar_clock', label: 'Timetable', top: 245 },
   { path: '/assignments', symbol: 'assignment', label: 'Assignment', top: 285 },
   { path: '/tcas', symbol: 'school', label: 'University', top: 325 },
   { path: '/classroom', symbol: 'co_present', label: 'Classroom', top: 365 },
@@ -15,6 +17,7 @@ const navItems = [
 export function NavigationRail() {
   const location = useLocation();
   const currentPath = location.pathname.replace(/\/+$/, '') || '/';
+  const { triggerRipple } = useRipple();
 
   return (
     <>
@@ -34,35 +37,39 @@ export function NavigationRail() {
           </span>
         </Link>
 
-        <button
-          type="button"
-          disabled
-          className="absolute left-[30px] top-[109px] flex h-[70px] w-[142px] cursor-not-allowed items-center justify-center gap-3 rounded-[15px] bg-[#eaddff] px-4 text-[#4f2396] opacity-100"
-          title="Awaits Implementation"
-        >
-          <MaterialSymbol name="add" className="text-[1.15rem]" />
-          <span className="text-center text-[14px] font-black leading-[18px]">New<br />Items</span>
-        </button>
+        <div className="absolute left-[30px] top-[109px]">
+          <button
+            className="relative flex h-[70px] w-[160px] items-center gap-3 overflow-hidden rounded-[15px] bg-[#eaddff] px-5 text-[#4f2396] transition-colors hover:bg-[#d8caff] active:bg-[#c9b8ff]"
+            onClick={(e) => {
+              triggerRipple(e);
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            <MaterialSymbol name="add" className="text-[1.6rem]" />
+            <span className="text-[16px] font-semibold leading-none">New Items</span>
+          </button>
+        </div>
 
         <div>
           {navItems.map((item) => {
-            const routeActive =
+            const isActive =
               currentPath === item.path ||
               currentPath.startsWith(`${item.path}/`) ||
               (item.path === '/timetable' && currentPath === '/');
-            const showSelectedPill = Boolean(item.figmaSelected);
 
             return (
               <Link
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  'group absolute left-[30px] flex h-9 w-[225px] items-center rounded-full text-[#434343] transition-colors duration-200',
+                  'group absolute left-[30px] flex h-9 w-[225px] items-center overflow-hidden rounded-full text-[#434343] transition-colors duration-200',
                   'hover:bg-[#dbeaff] hover:text-[#364963] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                  showSelectedPill && 'bg-[#cfe3ff] text-[#364963]'
+                  isActive && 'bg-[#cfe3ff] text-[#364963]'
                 )}
-                style={{ top: showSelectedPill && item.selectedTop ? item.selectedTop : item.top }}
-                aria-current={routeActive ? 'page' : undefined}
+                style={{ top: item.top }}
+                aria-current={isActive ? 'page' : undefined}
+                onClick={triggerRipple}
               >
                 <MaterialSymbol
                   name={item.symbol}
@@ -91,11 +98,12 @@ export function NavigationRail() {
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  'group flex h-full min-w-[4.75rem] flex-1 flex-col items-center justify-center rounded-2xl transition-colors duration-200',
+                  'group relative flex h-full min-w-[4.75rem] flex-1 flex-col items-center justify-center overflow-hidden rounded-2xl transition-colors duration-200',
                   'text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
                   isActive && 'text-primary'
                 )}
                 aria-current={isActive ? 'page' : undefined}
+                onClick={triggerRipple}
               >
                 <span
                   className={cn(

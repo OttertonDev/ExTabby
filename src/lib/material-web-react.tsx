@@ -8,6 +8,10 @@ import { MdTextButton } from '@material/web/button/text-button.js';
 import { MdElevatedButton } from '@material/web/button/elevated-button.js';
 import { MdFilledTonalButton } from '@material/web/button/filled-tonal-button.js';
 
+// FABs
+import { MdFab } from '@material/web/fab/fab.js';
+import { MdBrandedFab } from '@material/web/fab/branded-fab.js';
+
 // Text fields
 import { MdOutlinedTextField } from '@material/web/textfield/outlined-text-field.js';
 import { MdFilledTextField } from '@material/web/textfield/filled-text-field.js';
@@ -326,5 +330,18 @@ export const FilledSelect = createComponent({
 export const SelectOption = createComponent({
   tagName: 'md-select-option',
   elementClass: MdSelectOption,
+  react: React,
+});
+
+// FABs
+export const Fab = createComponent({
+  tagName: 'md-fab',
+  elementClass: MdFab,
+  react: React,
+});
+
+export const BrandedFab = createComponent({
+  tagName: 'md-branded-fab',
+  elementClass: MdBrandedFab,
   react: React,
 });

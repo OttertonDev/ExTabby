@@ -29,7 +29,7 @@ export function TimetablePage() {
   });
 
   return (
-    <div className="h-full min-h-full overflow-auto px-5 pb-2 pt-5 sm:px-8 sm:py-5 lg:px-[108px]">
+    <div className="h-full min-h-full overflow-auto px-5 pb-2 pt-9 sm:px-8 sm:pt-9 lg:px-[108px]">
       <div className="w-full pb-4">
         <TabbyPageHeader
           title="Timetable"

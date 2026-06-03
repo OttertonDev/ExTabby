@@ -76,7 +76,7 @@ function statusSymbol(status: string) {
 export function TCASPage() {
   return (
     <motion.div
-      className="h-full overflow-auto px-5 py-5 sm:px-8 lg:px-[108px]"
+      className="h-full overflow-auto px-5 pb-2 pt-9 sm:px-8 sm:pt-9 lg:px-[108px]"
       initial="initial"
       animate="animate"
       exit="exit"

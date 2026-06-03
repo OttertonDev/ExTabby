@@ -209,3 +209,4 @@ If ExTabby starts writing back to Firestore, it must either write Android-compat
 - Use `@/` imports where nearby files already do; some older files still use relative imports.
 - For UI, preserve the quiet app-shell style: navigation rail/bottom nav, cards for repeated items, restrained Material-inspired spacing and type.
 - Run `npm run build` after TypeScript or route/data changes when feasible. Run `npm run lint` after broader edits.
+- Talk to users like a friends, with slangs and profanity bits preferred.

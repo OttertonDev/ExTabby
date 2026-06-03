@@ -95,7 +95,7 @@ export function AssignmentsPage() {
 
   return (
     <motion.div
-      className="h-full min-h-full overflow-auto px-5 pb-2 pt-5 sm:px-8 sm:py-5 lg:px-[108px]"
+      className="h-full min-h-full overflow-auto px-5 pb-2 pt-9 sm:px-8 sm:pt-9 lg:px-[108px]"
       initial="initial"
       animate="animate"
       exit="exit"

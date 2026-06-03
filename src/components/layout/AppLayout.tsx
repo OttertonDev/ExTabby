@@ -41,7 +41,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           )}
         </header>
 
-        <main className="min-h-0 flex-1 overflow-hidden rounded-[2rem] bg-white shadow-sm md:absolute md:bottom-[37px] md:left-[285px] md:right-[37px] md:top-28 md:rounded-[3.5rem]">
+        <main className="min-h-0 flex-1 overflow-hidden rounded-[2rem] bg-white md:absolute md:bottom-[41px] md:left-[285px] md:right-[45px] md:top-[109px] md:rounded-[50px]">
           {children}
         </main>
       </div>
