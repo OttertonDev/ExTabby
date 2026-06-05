@@ -5,7 +5,9 @@ import { signInWithGoogle } from './lib/auth';
 import { AppLayout } from './components/layout/AppLayout';
 import { TimetablePage } from './pages/TimetablePage';
 import { AssignmentsPage } from './pages/AssignmentsPage';
-import { TCASPage } from './pages/TCASPage';
+import { TCASPage as TCASSearchPage } from './pages/tcas/TCASSearchPage';
+import { UniversityDetailPage } from './pages/tcas/UniversityDetailPage';
+import { ProgramDetailPage } from './pages/tcas/ProgramDetailPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { Button } from './components/ui/button';
 import { tabbyAssets } from './lib/tabby';
@@ -21,6 +23,18 @@ function AwaitingImplementationPage() {
 }
 
 function LoginPage() {
+  const handleDemoMode = () => {
+    // Create a demo user in localStorage
+    const demoUser = {
+      uid: 'demo-user',
+      email: 'demo@tabby.app',
+      displayName: 'Demo User',
+      photoURL: tabbyAssets.icon,
+    };
+    localStorage.setItem('tabby-demo-mode', JSON.stringify(demoUser));
+    window.location.reload();
+  };
+
   return (
     <div className="min-h-screen overflow-hidden bg-background">
       <div className="mx-auto grid min-h-screen max-w-6xl items-center gap-10 px-6 py-10 md:grid-cols-[1.05fr_0.95fr]">
@@ -35,13 +49,23 @@ function LoginPage() {
           <p className="mt-4 max-w-xl text-body-large text-muted-foreground">
             Your Web Tabby home for synced timetable, assignments, TCAS planning, and school context from the Android app.
           </p>
-          <Button
-            onClick={signInWithGoogle}
-            size="lg"
-            className="mt-8 h-12 rounded-full px-6 text-base shadow-elevation-1"
-          >
-            Sign in with Google
-          </Button>
+          <div className="mt-8 flex gap-3">
+            <Button
+              onClick={signInWithGoogle}
+              size="lg"
+              className="h-12 rounded-full px-6 text-base shadow-elevation-1"
+            >
+              Sign in with Google
+            </Button>
+            <Button
+              onClick={handleDemoMode}
+              size="lg"
+              variant="outline"
+              className="h-12 rounded-full px-6 text-base shadow-elevation-1"
+            >
+              Demo
+            </Button>
+          </div>
         </div>
         <div className="order-1 md:order-2">
           <div className="relative mx-auto aspect-square max-w-md overflow-hidden rounded-[2rem] bg-tabby-mint shadow-elevation-3">
@@ -67,7 +91,9 @@ function AnimatedRoutes() {
         <Route path="/home" element={<AwaitingImplementationPage />} />
         <Route path="/timetable" element={<TimetablePage />} />
         <Route path="/assignments" element={<AssignmentsPage />} />
-        <Route path="/tcas" element={<TCASPage />} />
+        <Route path="/tcas" element={<TCASSearchPage />} />
+        <Route path="/tcas/university/:universityId" element={<UniversityDetailPage />} />
+        <Route path="/tcas/program/:programId" element={<ProgramDetailPage />} />
         <Route path="/classroom" element={<AwaitingImplementationPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Routes>
