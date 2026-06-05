@@ -25,14 +25,14 @@ export function NavigationRail() {
       <nav className="hidden h-full w-[285px] shrink-0 md:absolute md:left-0 md:top-0 md:z-30 md:block">
         <Link
           to="/timetable"
-          className="absolute left-[30px] top-4 flex h-[78px] items-center text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="absolute left-[30px] top-4 flex h-[60px] items-center text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <img
             src={tabbyAssets.transparentLogo}
             alt="Tabby"
-            className="size-[78px] object-contain"
+            className="size-[60px] object-contain"
           />
-          <span className="ml-[7px] font-display text-[29px] font-black leading-none text-foreground" style={{ fontVariationSettings: '"wght" 1000, "ROND" 100' }}>
+          <span className="ml-[7px] font-display text-[24px] font-black leading-none text-foreground" style={{ fontVariationSettings: '"wght" 1000, "ROND" 100' }}>
             Tabby
           </span>
         </Link>

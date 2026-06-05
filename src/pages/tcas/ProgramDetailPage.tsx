@@ -4,13 +4,12 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { TabbyPageHeader, TabbySection, MaterialSymbol } from '@/components/tabby/TabbyPrimitives';
+import { TabbySection, MaterialSymbol } from '@/components/tabby/TabbyPrimitives';
 import { useTcasData, useTcasProgramDetail } from '@/hooks/useTcas';
 import {
   TcasListSkeleton,
   TcasErrorCard,
   TcasInfoRow,
-  TcasRoundBadge,
   UniversityLogo,
 } from '@/components/tcas/TcasComponents';
 import type { TcasRoundProject } from '@/types/tcas';

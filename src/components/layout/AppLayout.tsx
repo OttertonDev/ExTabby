@@ -16,24 +16,48 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden overscroll-none px-4 pb-[5.25rem] pt-3 md:absolute md:inset-0 md:block md:px-0 md:pb-0 md:pt-0">
         <header className="relative z-10 flex h-[5.5rem] shrink-0 items-center justify-center md:block md:h-0">
-          <div className="flex h-14 w-full max-w-[37.5rem] items-center rounded-full bg-[#cfe3ff] px-5 text-[#364963] md:absolute md:left-1/2 md:top-7 md:w-[600px] md:max-w-none md:-translate-x-1/2">
-            <span className="flex-1 text-body-large font-medium">Search</span>
-            <MaterialSymbol name="search" className="text-[1.35rem]" />
-          </div>
-
-          {user && (
-            <div className="absolute right-0 top-1/2 flex -translate-y-1/2 items-center md:right-[45px] md:top-[56px] md:-translate-y-1/2">
-              <div className="rounded-full p-[3px]" style={{ background: 'conic-gradient(#3174F1 0% 25%, #249A41 25% 50%, #F6AD01 50% 75%, #E92D18 75% 100%)' }}>
+          {/* Mobile search bar with profile inside */}
+          <div className="flex h-12 w-full items-center gap-3 rounded-full bg-[#cfe3ff] pl-4 pr-1 text-[#364963] md:hidden">
+            <MaterialSymbol name="search" className="shrink-0 text-[1.25rem]" />
+            <span className="flex-1 text-body-medium font-medium">Search</span>
+            {user && (
+              <div className="flex shrink-0 items-center justify-center rounded-full p-[2px]" style={{ background: 'conic-gradient(#3174F1 0% 25%, #249A41 25% 50%, #F6AD01 50% 75%, #E92D18 75% 100%)' }}>
                 {user.photoURL && (
                   <img
                     src={user.photoURL}
                     alt={user.displayName || 'User'}
-                    className="size-[3.25rem] rounded-full bg-white object-cover p-[3px] md:size-[3.5rem]"
+                    className="size-[32px] rounded-full object-cover"
                   />
                 )}
                 {!user.photoURL && (
-                  <div className="grid size-[3.25rem] place-items-center rounded-full bg-white p-[3px] text-primary md:size-[3.5rem]">
-                    <MaterialSymbol name="person" className="text-[1.6rem]" />
+                  <div className="grid size-[32px] place-items-center rounded-full bg-white text-primary">
+                    <MaterialSymbol name="person" className="text-[1.2rem]" />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Desktop search bar */}
+          <div className="hidden h-12 w-[560px] items-center rounded-full bg-[#cfe3ff] px-4 text-[#364963] md:absolute md:left-1/2 md:top-5 md:flex md:-translate-x-1/2">
+            <span className="flex-1 text-body-medium font-medium">Search</span>
+            <MaterialSymbol name="search" className="text-[1.25rem]" />
+          </div>
+
+          {/* Desktop profile picture */}
+          {user && (
+            <div className="absolute right-0 top-1/2 hidden -translate-y-1/2 items-center md:right-[45px] md:top-[44px] md:flex md:-translate-y-1/2">
+              <div className="flex size-[51px] items-center justify-center rounded-full p-[2.5px]" style={{ background: 'conic-gradient(#3174F1 0% 25%, #249A41 25% 50%, #F6AD01 50% 75%, #E92D18 75% 100%)' }}>
+                {user.photoURL && (
+                  <img
+                    src={user.photoURL}
+                    alt={user.displayName || 'User'}
+                    className="size-[46px] rounded-full object-cover"
+                  />
+                )}
+                {!user.photoURL && (
+                  <div className="grid size-[46px] place-items-center rounded-full bg-white text-primary">
+                    <MaterialSymbol name="person" className="text-[1.4rem]" />
                   </div>
                 )}
               </div>
@@ -41,7 +65,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           )}
         </header>
 
-        <main className="min-h-0 flex-1 overflow-hidden rounded-[2rem] bg-white md:absolute md:bottom-[41px] md:left-[285px] md:right-[45px] md:top-[109px] md:rounded-[50px]">
+        <main className="min-h-0 flex-1 overflow-hidden rounded-[2rem] bg-white md:absolute md:bottom-[41px] md:left-[285px] md:right-[45px] md:top-[85px] md:rounded-[50px]">
           {children}
         </main>
       </div>

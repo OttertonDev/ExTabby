@@ -1,7 +1,7 @@
 // Search and filter logic for TCAS programs
 // Reference: Tabby-Schedule/app/src/main/java/com/ottertondev/tabby/feature/road/TcasSearch.kt
 
-import Fuse from 'fuse.js';
+import Fuse, { type IFuseOptions } from 'fuse.js';
 import type {
   TcasProgram,
   TcasFilterOption,
@@ -12,13 +12,12 @@ import type {
   TcasSearchFilters,
 } from '@/types/tcas';
 import { TCAS_MAX_SEARCH_RESULTS, TCAS_ROUND_NAMES } from '@/types/tcas';
-import { composeSearchText } from './tcasParser';
 
 // ============================================================================
 // Fuse.js Configuration
 // ============================================================================
 
-const fuseOptions: Fuse.IFuseOptions<TcasProgram> = {
+const fuseOptions: IFuseOptions<TcasProgram> = {
   keys: [
     { name: 'programNameEn', weight: 2 },
     { name: 'programNameTh', weight: 2 },

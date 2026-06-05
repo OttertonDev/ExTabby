@@ -8,6 +8,19 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check for demo mode first
+    const demoUser = localStorage.getItem('tabby-demo-mode');
+    if (demoUser) {
+      try {
+        setUser(JSON.parse(demoUser) as User);
+        setLoading(false);
+        return;
+      } catch (e) {
+        localStorage.removeItem('tabby-demo-mode');
+      }
+    }
+
+    // Otherwise use Firebase auth
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
