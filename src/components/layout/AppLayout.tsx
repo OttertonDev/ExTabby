@@ -47,7 +47,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           {/* Desktop profile picture */}
           {user && (
             <div className="absolute right-0 top-1/2 hidden -translate-y-1/2 items-center md:right-[45px] md:top-[44px] md:flex md:-translate-y-1/2">
-              <div className="flex size-[51px] items-center justify-center rounded-full p-[2.5px]" style={{ background: 'conic-gradient(#3174F1 0% 25%, #249A41 25% 50%, #F6AD01 50% 75%, #E92D18 75% 100%)' }}>
+              <div className="grid size-[52px] shrink-0 place-items-center rounded-full p-[3px]" style={{ background: 'conic-gradient(#3174F1 0% 25%, #249A41 25% 50%, #F6AD01 50% 75%, #E92D18 75% 100%)' }}>
                 {user.photoURL && (
                   <img
                     src={user.photoURL}
