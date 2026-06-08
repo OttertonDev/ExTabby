@@ -89,7 +89,8 @@ interface UseTcasSearchReturn {
   filters: TcasSearchFilters;
   setFilters: (filters: TcasSearchFilters) => void;
   clearFilters: () => void;
-  results: TcasProgram[];
+  searchResults: TcasProgram[];   // text-query results (no filters applied)
+  filterResults: TcasProgram[];   // filter-only results (no query applied)
   universityOptions: TcasFilterOption[];
   fieldOptions: TcasFilterOption[];
   hasActiveFilters: boolean;
@@ -167,10 +168,16 @@ export function useTcasSearch(programs: TcasProgram[]): UseTcasSearchReturn {
     [programs, filters.universityId]
   );
 
-  // Compute search results - NO DEBOUNCING for instant updates
-  const results = useMemo(
-    () => filterPrograms(programs, query, filters),
-    [programs, query, filters]
+  // Text-search results: query applied to all programs, no filters
+  const searchResults = useMemo(
+    () => (query.trim() ? filterPrograms(programs, query, {}) : []),
+    [programs, query]
+  );
+
+  // Filter-only results: filters applied, no text query
+  const filterResults = useMemo(
+    () => filterPrograms(programs, '', filters),
+    [programs, filters]
   );
 
   const hasActiveFilters = Boolean(filters.universityId || filters.fieldId);
@@ -185,7 +192,8 @@ export function useTcasSearch(programs: TcasProgram[]): UseTcasSearchReturn {
     filters,
     setFilters,
     clearFilters,
-    results,
+    searchResults,
+    filterResults,
     universityOptions,
     fieldOptions,
     hasActiveFilters,

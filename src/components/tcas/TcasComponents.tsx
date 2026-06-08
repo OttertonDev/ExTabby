@@ -1,6 +1,6 @@
 // Reusable TCAS UI components
 
-import { type ReactNode } from 'react';
+import { type ReactNode, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MaterialSymbol } from '@/components/tabby/TabbyPrimitives';
 import { cn } from '@/lib/utils';
@@ -184,6 +184,20 @@ export function TcasSearchBar({
   placeholder = 'Search programs...',
   className,
 }: TcasSearchBarProps) {
+  const [localValue, setLocalValue] = useState(value);
+
+  // Sync local state when external value is cleared
+  useEffect(() => {
+    if (!value) setLocalValue('');
+  }, [value]);
+
+  const commit = () => onChange(localValue);
+
+  const clear = () => {
+    setLocalValue('');
+    onChange('');
+  };
+
   return (
     <div className={cn('relative', className)}>
       <MaterialSymbol
@@ -192,14 +206,15 @@ export function TcasSearchBar({
       />
       <input
         type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        value={localValue}
+        onChange={(e) => setLocalValue(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && commit()}
         placeholder={placeholder}
-        className="h-12 w-full rounded-full bg-surface-variant pl-12 pr-4 text-body-large text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+        className="h-12 w-full rounded-full bg-surface-variant pl-12 pr-12 text-body-large text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
       />
-      {value && (
+      {localValue && (
         <button
-          onClick={() => onChange('')}
+          onClick={clear}
           className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           aria-label="Clear search"
         >

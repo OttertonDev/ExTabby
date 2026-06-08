@@ -47,6 +47,8 @@ export interface TcasProgram {
   fieldNameEn: string;
   programNameTh: string;
   programNameEn: string;
+  majorNameTh: string | null;
+  majorNameEn: string | null;
   programTypeNameTh: string;
   cost: string | null;
   graduateRate: string | null;
@@ -108,6 +110,8 @@ export interface ProgramApiResponse {
   field_name_en: string | null;
   program_name_th: string | null;
   program_name_en: string | null;
+  major_name_th: string | null;
+  major_name_en: string | null;
   program_type_name_th: string | null;
   cost: string | null;
   graduate_rate: string | null;

@@ -110,6 +110,8 @@ export function parseProgram(data: ProgramApiResponse): TcasProgram {
     fieldNameEn: requiredText(data.field_name_en),
     programNameTh: requiredText(data.program_name_th),
     programNameEn: requiredText(data.program_name_en),
+    majorNameTh: cleanText(data.major_name_th),
+    majorNameEn: cleanText(data.major_name_en),
     programTypeNameTh: requiredText(data.program_type_name_th),
     cost: cleanText(data.cost),
     graduateRate: cleanText(data.graduate_rate),

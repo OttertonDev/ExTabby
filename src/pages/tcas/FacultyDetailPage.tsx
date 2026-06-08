@@ -1,5 +1,5 @@
-// University Detail Page - Shows the list of faculties for a university
-// Reference: Tabby-Schedule RoadToUniversityRoute.kt (RoadFacultyRoute)
+// Faculty Detail Page - Shows the list of fields within a faculty
+// Reference: Tabby-Schedule RoadToUniversityRoute.kt (RoadFieldRoute)
 
 import { useMemo } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TabbyPageHeader, TabbySection, MaterialSymbol } from '@/components/tabby/TabbyPrimitives';
 import { useTcasData } from '@/hooks/useTcas';
 import { TcasEmptyState, TcasErrorCard, TcasListSkeleton, UniversityLogo } from '@/components/tcas/TcasComponents';
-import { getFacultiesForUniversity, getFieldsForFaculty } from '@/lib/tcas/tcasSearch';
+import { getFacultiesForUniversity, getFieldsForFaculty, getProgramsForField } from '@/lib/tcas/tcasSearch';
 
 const pageVariants = {
   initial: { opacity: 0, y: 12 },
@@ -27,19 +27,24 @@ const expressiveTransition = {
   mass: 1,
 };
 
-export function UniversityDetailPage() {
-  const { universityId } = useParams<{ universityId: string }>();
+export function FacultyDetailPage() {
+  const { universityId, facultyId } = useParams<{ universityId: string; facultyId: string }>();
   const location = useLocation();
   const { universities, programs, loading, error, refresh } = useTcasData();
   const university = universities.find((u) => u.id === universityId);
 
-  const faculties = useMemo(() => {
-    if (!universityId) return [];
-    return getFacultiesForUniversity(programs, universityId).map((faculty) => ({
-      faculty,
-      fieldCount: getFieldsForFaculty(programs, universityId, faculty.facultyId).length,
+  const faculty = useMemo(() => {
+    if (!universityId || !facultyId) return undefined;
+    return getFacultiesForUniversity(programs, universityId).find((f) => f.facultyId === facultyId);
+  }, [programs, universityId, facultyId]);
+
+  const fields = useMemo(() => {
+    if (!universityId || !facultyId) return [];
+    return getFieldsForFaculty(programs, universityId, facultyId).map((field) => ({
+      field,
+      programCount: getProgramsForField(programs, universityId, facultyId, field.fieldId).length,
     }));
-  }, [programs, universityId]);
+  }, [programs, universityId, facultyId]);
 
   return (
     <motion.div
@@ -52,52 +57,54 @@ export function UniversityDetailPage() {
     >
       <div className="w-full pb-4">
         <Link
-          to={{ pathname: '/tcas', search: location.search }}
+          to={{ pathname: `/tcas/university/${encodeURIComponent(universityId ?? '')}`, search: location.search }}
           className="mb-4 inline-flex items-center gap-1 text-body-medium text-primary hover:underline"
         >
           <MaterialSymbol name="arrow_back" className="text-[1.15rem]" />
-          <span>Back to TCAS</span>
+          <span>Back to faculties</span>
         </Link>
 
         {loading && (
-          <TabbySection title="Loading university...">
+          <TabbySection title="Loading faculty...">
             <TcasListSkeleton count={6} />
           </TabbySection>
         )}
 
         {error && !loading && <TcasErrorCard message={error} onRetry={refresh} />}
 
-        {!loading && !error && !university && <TcasErrorCard message="University not found" />}
+        {!loading && !error && (!university || !faculty) && (
+          <TcasErrorCard message="Faculty not found" />
+        )}
 
-        {!loading && !error && university && (
+        {!loading && !error && university && faculty && (
           <>
             <TabbyPageHeader
-              title={university.nameTh}
-              subtitle={university.nameEn}
-              symbol="school"
+              title={faculty.nameTh}
+              subtitle={`${faculty.nameEn} · ${university.nameTh}`}
+              symbol="account_balance"
               shape="gem"
               action={<UniversityLogo src={university.logoUrl} alt={university.nameTh} size="lg" />}
             />
 
-            {faculties.length === 0 ? (
+            {fields.length === 0 ? (
               <TcasEmptyState
-                title="No programs found"
-                body="This university is listed, but no public programs are available in the current TCAS dataset."
+                title="No fields found"
+                body="This faculty has no public programs in the current TCAS dataset."
                 icon="search_off"
               />
             ) : (
-              <TabbySection title={`Faculties (${faculties.length})`}>
+              <TabbySection title={`Fields (${fields.length})`}>
                 <motion.div
                   initial="hidden"
                   animate="show"
                   transition={{ staggerChildren: 0.03, delayChildren: 0.05 }}
                 >
                   <AnimatePresence>
-                    {faculties.map(({ faculty, fieldCount }) => (
+                    {fields.map(({ field, programCount }) => (
                       <Link
-                        key={faculty.facultyId}
+                        key={`${field.groupFieldId}:${field.fieldId}`}
                         to={{
-                          pathname: `/tcas/university/${encodeURIComponent(university.id)}/faculty/${encodeURIComponent(faculty.facultyId)}`,
+                          pathname: `/tcas/university/${encodeURIComponent(university.id)}/faculty/${encodeURIComponent(faculty.facultyId)}/field/${encodeURIComponent(field.fieldId)}`,
                           search: location.search,
                         }}
                         className="block"
@@ -110,14 +117,14 @@ export function UniversityDetailPage() {
                         >
                           <div className="min-w-0 flex-1">
                             <h3 className="truncate text-title-medium font-black text-foreground">
-                              {faculty.nameTh}
+                              {field.nameTh}
                             </h3>
                             <p className="truncate text-body-small text-muted-foreground">
-                              {faculty.nameEn}
+                              {field.nameEn}
                             </p>
                           </div>
                           <span className="shrink-0 rounded-full bg-tabby-mint px-3 py-1 text-xs font-black text-primary">
-                            {fieldCount}
+                            {programCount}
                           </span>
                           <MaterialSymbol name="chevron_right" className="text-[1.25rem] text-muted-foreground" />
                         </motion.div>

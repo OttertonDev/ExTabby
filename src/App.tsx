@@ -7,6 +7,8 @@ import { TimetablePage } from './pages/TimetablePage';
 import { AssignmentsPage } from './pages/AssignmentsPage';
 import { TCASPage as TCASSearchPage } from './pages/tcas/TCASSearchPage';
 import { UniversityDetailPage } from './pages/tcas/UniversityDetailPage';
+import { FacultyDetailPage } from './pages/tcas/FacultyDetailPage';
+import { FieldDetailPage } from './pages/tcas/FieldDetailPage';
 import { ProgramDetailPage } from './pages/tcas/ProgramDetailPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { Button } from './components/ui/button';
@@ -108,6 +110,8 @@ function AnimatedRoutes() {
         <Route path="/assignments" element={<AssignmentsPage />} />
         <Route path="/tcas" element={<TCASSearchPage />} />
         <Route path="/tcas/university/:universityId" element={<UniversityDetailPage />} />
+        <Route path="/tcas/university/:universityId/faculty/:facultyId" element={<FacultyDetailPage />} />
+        <Route path="/tcas/university/:universityId/faculty/:facultyId/field/:fieldId" element={<FieldDetailPage />} />
         <Route path="/tcas/program/:programId" element={<ProgramDetailPage />} />
         <Route path="/classroom" element={<AwaitingImplementationPage />} />
         <Route path="/settings" element={<SettingsPage />} />

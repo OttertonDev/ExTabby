@@ -129,45 +129,47 @@ function FilterMenu({
       <span className="mb-1.5 block text-body-small font-bold text-muted-foreground">
         {label}
       </span>
-      <button
-        type="button"
-        onClick={() => onOpenChange(!open)}
-        className="flex h-11 w-full min-w-0 items-center justify-between gap-3 rounded-full bg-surface-variant px-4 text-left text-body-medium font-bold text-foreground ring-1 ring-border/25 transition-colors hover:bg-surface-variant/75 focus:outline-none focus:ring-2 focus:ring-primary/45"
-        aria-expanded={open}
-      >
-        <span className="min-w-0 flex-1 truncate">{selectedLabel}</span>
-        <MaterialSymbol
-          name={open ? 'expand_less' : 'expand_more'}
-          className="text-[1.25rem] text-muted-foreground"
-        />
-      </button>
-      {open && (
-        <div className="mt-2 max-h-72 w-full overflow-y-auto rounded-[1rem] bg-background p-1 ring-1 ring-border/30 shadow-elevation-2">
-          <button
-            type="button"
-            onClick={() => {
-              onChange('');
-              onOpenChange(false);
-            }}
-            className="flex w-full items-start rounded-xl px-3 py-2 text-left text-body-small font-bold text-foreground hover:bg-surface-variant"
-          >
-            {allLabel}
-          </button>
-          {options.map((option) => (
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => onOpenChange(!open)}
+          className="flex h-11 w-full min-w-0 items-center justify-between gap-3 rounded-full bg-surface-variant px-4 text-left text-body-medium font-bold text-foreground ring-1 ring-border/25 transition-colors hover:bg-surface-variant/75 focus:outline-none focus:ring-2 focus:ring-primary/45"
+          aria-expanded={open}
+        >
+          <span className="min-w-0 flex-1 truncate">{selectedLabel}</span>
+          <MaterialSymbol
+            name={open ? 'expand_less' : 'expand_more'}
+            className="text-[1.25rem] text-muted-foreground"
+          />
+        </button>
+        {open && (
+          <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-72 w-full overflow-y-auto rounded-[1rem] bg-background p-1 ring-1 ring-border/30 shadow-elevation-3">
             <button
-              key={option.key}
               type="button"
               onClick={() => {
-                onChange(option.key);
+                onChange('');
                 onOpenChange(false);
               }}
               className="flex w-full items-start rounded-xl px-3 py-2 text-left text-body-small font-bold text-foreground hover:bg-surface-variant"
             >
-              <span className="line-clamp-2 min-w-0">{option.label}</span>
+              {allLabel}
             </button>
-          ))}
-        </div>
-      )}
+            {options.map((option) => (
+              <button
+                key={option.key}
+                type="button"
+                onClick={() => {
+                  onChange(option.key);
+                  onOpenChange(false);
+                }}
+                className="flex w-full items-start rounded-xl px-3 py-2 text-left text-body-small font-bold text-foreground hover:bg-surface-variant"
+              >
+                <span className="line-clamp-2 min-w-0">{option.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -182,13 +184,15 @@ export function TCASPage() {
     filters,
     setFilters,
     clearFilters,
-    results,
+    searchResults,
+    filterResults,
     universityOptions,
     fieldOptions,
     hasActiveFilters,
   } = useTcasSearch(programs);
 
-  const showUniversityList = !query.trim() && !hasActiveFilters;
+  // Three mutually exclusive display modes
+  const mode = query.trim() ? 'search' : hasActiveFilters ? 'filter' : 'universities';
   const selectedUniversity = filters.universityId ?? '';
   const selectedField = filters.fieldId ?? '';
 
@@ -296,7 +300,7 @@ export function TCASPage() {
 
         {!loading && !error && (
           <>
-            {showUniversityList ? (
+            {mode === 'universities' && (
               <TabbySection title={`Universities (${universities.length})`}>
                 {universities.length === 0 ? (
                   <div className="px-4 py-8 text-center text-body-medium text-muted-foreground">
@@ -320,13 +324,15 @@ export function TCASPage() {
                   </motion.div>
                 )}
               </TabbySection>
-            ) : (
-              <TabbySection title={`Programs (${results.length})`}>
-                {results.length === 0 ? (
+            )}
+
+            {mode === 'search' && (
+              <TabbySection title={`Search results (${searchResults.length})`}>
+                {searchResults.length === 0 ? (
                   <div className="px-4 py-8">
                     <TcasEmptyState
                       title="No programs found"
-                      body="Try adjusting your search query or filters."
+                      body="Try a different search term."
                       icon="search_off"
                     />
                   </div>
@@ -337,7 +343,37 @@ export function TCASPage() {
                     transition={{ staggerChildren: 0.03, delayChildren: 0.05 }}
                   >
                     <AnimatePresence>
-                      {results.map((program) => (
+                      {searchResults.map((program) => (
+                        <ProgramSearchListItem
+                          key={program.programId}
+                          program={program}
+                          search={location.search}
+                        />
+                      ))}
+                    </AnimatePresence>
+                  </motion.div>
+                )}
+              </TabbySection>
+            )}
+
+            {mode === 'filter' && (
+              <TabbySection title={`Filtered programs (${filterResults.length})`}>
+                {filterResults.length === 0 ? (
+                  <div className="px-4 py-8">
+                    <TcasEmptyState
+                      title="No programs found"
+                      body="Try adjusting your filters."
+                      icon="search_off"
+                    />
+                  </div>
+                ) : (
+                  <motion.div
+                    initial="hidden"
+                    animate="show"
+                    transition={{ staggerChildren: 0.03, delayChildren: 0.05 }}
+                  >
+                    <AnimatePresence>
+                      {filterResults.map((program) => (
                         <ProgramSearchListItem
                           key={program.programId}
                           program={program}
