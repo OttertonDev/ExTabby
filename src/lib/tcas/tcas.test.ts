@@ -3,7 +3,12 @@ import assert from 'node:assert/strict';
 import type { TcasProgram } from '@/types/tcas';
 import { fetchWithRetry } from './tcasClient';
 import { normalizeExternalUrl, parseProgram, parseRoundProject } from './tcasParser';
-import { filterPrograms, getFieldOptions, groupRoundsByNumber } from './tcasSearch';
+import {
+  filterPrograms,
+  getFieldOptions,
+  groupProgramsByFacultyCampus,
+  groupRoundsByNumber,
+} from './tcasSearch';
 
 function makeProgram(overrides: Partial<TcasProgram>): TcasProgram {
   return {
@@ -23,6 +28,8 @@ function makeProgram(overrides: Partial<TcasProgram>): TcasProgram {
     fieldNameEn: 'Field',
     programNameTh: 'Program',
     programNameEn: 'Program',
+    majorNameTh: null,
+    majorNameEn: null,
     programTypeNameTh: 'Bachelor',
     cost: null,
     graduateRate: null,
@@ -95,6 +102,54 @@ test('field filtering uses short English labels without visible duplicates', () 
 
   assert.deepEqual(options.map((option) => option.label), ['Computer Science', 'Medicine']);
   assert.deepEqual(results.map((program) => program.programId), ['a', 'b']);
+});
+
+test('groupProgramsByFacultyCampus groups same faculty by campus and sorts programs', () => {
+  const programs = [
+    makeProgram({
+      programId: 'p2',
+      universityId: '001',
+      facultyId: 'f-eng',
+      facultyNameTh: 'คณะวิศวกรรมศาสตร์',
+      campusNameTh: 'บางเขน',
+      programNameTh: 'วิศวกรรมไฟฟ้า',
+      majorNameTh: 'ไฟฟ้ากำลัง',
+    }),
+    makeProgram({
+      programId: 'p1',
+      universityId: '001',
+      facultyId: 'f-eng',
+      facultyNameTh: 'คณะวิศวกรรมศาสตร์',
+      campusNameTh: 'บางเขน',
+      programNameTh: 'วิศวกรรมคอมพิวเตอร์',
+      majorNameTh: 'คอมพิวเตอร์',
+    }),
+    makeProgram({
+      programId: 'p3',
+      universityId: '001',
+      facultyId: 'f-eng',
+      facultyNameTh: 'คณะวิศวกรรมศาสตร์',
+      campusNameTh: 'ศรีราชา',
+      programNameTh: 'วิศวกรรมคอมพิวเตอร์',
+      majorNameTh: 'ระบบอัจฉริยะ',
+    }),
+  ];
+
+  const groups = groupProgramsByFacultyCampus(programs);
+
+  assert.equal(groups.length, 2);
+  assert.equal(groups[0]?.facultyNameTh, 'คณะวิศวกรรมศาสตร์');
+  assert.equal(groups[0]?.campusNameTh, 'บางเขน');
+  assert.equal(groups[0]?.programs.length, 2);
+  assert.deepEqual(
+    groups[0]?.programs.map((program) => program.programId),
+    ['p1', 'p2']
+  );
+  assert.equal(groups[1]?.campusNameTh, 'ศรีราชา');
+  assert.deepEqual(
+    groups[1]?.programs.map((program) => program.programId),
+    ['p3']
+  );
 });
 
 test('round grouping ignores malformed round numbers', () => {

@@ -56,6 +56,17 @@ export interface TcasProgram {
   medianSalary: string | null;
 }
 
+export interface TcasFacultyProgramGroup {
+  groupKey: string;
+  universityId: string;
+  facultyId: string;
+  facultyNameTh: string;
+  facultyNameEn: string;
+  campusNameTh: string;
+  campusNameEn: string;
+  programs: TcasProgram[];
+}
+
 export interface TcasRoundProject {
   projectId: string;
   projectNameTh: string;

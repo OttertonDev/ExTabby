@@ -14,7 +14,12 @@ import {
   TcasFilterChips,
   UniversityLogo,
 } from '@/components/tcas/TcasComponents';
-import type { TcasUniversity, TcasProgram, TcasFilterOption } from '@/types/tcas';
+import type {
+  TcasUniversity,
+  TcasProgram,
+  TcasFilterOption,
+  TcasFacultyProgramGroup,
+} from '@/types/tcas';
 
 const pageVariants = {
   initial: { opacity: 0, y: 12 },
@@ -68,10 +73,17 @@ function UniversityListItem({
 function ProgramSearchListItem({
   program,
   search,
+  showLogo = true,
 }: {
   program: TcasProgram;
   search: string;
+  showLogo?: boolean;
 }) {
+  const detailParts = [program.facultyNameTh, program.fieldNameTh];
+  if (program.majorNameTh) {
+    detailParts.push(program.majorNameTh);
+  }
+
   return (
     <Link
       to={{ pathname: `/tcas/program/${encodeURIComponent(program.programId)}`, search }}
@@ -83,11 +95,13 @@ function ProgramSearchListItem({
         whileHover={{ x: 4, scale: 1.002 }}
         transition={expressiveTransition}
       >
-        <UniversityLogo
-          src={`https://assets.mytcas.com/i/logo/${program.universityId}.png`}
-          alt={program.universityNameTh}
-          size="md"
-        />
+        {showLogo && (
+          <UniversityLogo
+            src={`https://assets.mytcas.com/i/logo/${program.universityId}.png`}
+            alt={program.universityNameTh}
+            size="md"
+          />
+        )}
         <div className="min-w-0 flex-1">
           <h3 className="line-clamp-2 text-title-medium font-black text-foreground">
             {program.programNameTh}
@@ -96,12 +110,71 @@ function ProgramSearchListItem({
             {program.universityNameTh}
           </p>
           <p className="mt-0.5 truncate text-body-small text-muted-foreground">
-            {program.facultyNameTh} · {program.fieldNameTh}
+            {detailParts.join(' · ')}
           </p>
         </div>
         <MaterialSymbol name="chevron_right" className="mt-1 text-[1.25rem] text-muted-foreground" />
       </motion.div>
     </Link>
+  );
+}
+
+function FacultyGroupListItem({
+  group,
+  search,
+}: {
+  group: TcasFacultyProgramGroup;
+  search: string;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const universityName = group.programs[0]?.universityNameTh ?? 'University';
+  const campusLabel =
+    group.campusNameTh !== 'Not specified' ? group.campusNameTh : group.campusNameEn;
+  const majorLabel = group.programs.length === 1 ? 'major' : 'majors';
+
+  return (
+    <motion.div
+      variants={itemVariants}
+      className="border-b border-border/20 last:border-b-0"
+    >
+      <button
+        type="button"
+        onClick={() => setExpanded((value) => !value)}
+        className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left hover:bg-surface-variant/30"
+        aria-expanded={expanded}
+      >
+        <UniversityLogo
+          src={`https://assets.mytcas.com/i/logo/${group.universityId}.png`}
+          alt={universityName}
+          size="sm"
+        />
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-title-medium font-black text-foreground">
+            {group.facultyNameTh}
+          </h3>
+          <p className="mt-1 truncate text-body-small text-muted-foreground">
+            {campusLabel} · {group.programs.length} {majorLabel}
+          </p>
+        </div>
+        <MaterialSymbol
+          name={expanded ? 'expand_less' : 'expand_more'}
+          className="text-[1.25rem] text-muted-foreground"
+        />
+      </button>
+
+      {expanded && (
+        <div className="border-t border-border/15 bg-surface-variant/20">
+          {group.programs.map((program) => (
+            <ProgramSearchListItem
+              key={program.programId}
+              program={program}
+              search={search}
+              showLogo={false}
+            />
+          ))}
+        </div>
+      )}
+    </motion.div>
   );
 }
 
@@ -186,6 +259,8 @@ export function TCASPage() {
     clearFilters,
     searchResults,
     filterResults,
+    groupedFilterResults,
+    shouldGroupUniversityOnly,
     universityOptions,
     fieldOptions,
     hasActiveFilters,
@@ -357,7 +432,13 @@ export function TCASPage() {
             )}
 
             {mode === 'filter' && (
-              <TabbySection title={`Filtered programs (${filterResults.length})`}>
+              <TabbySection
+                title={
+                  shouldGroupUniversityOnly
+                    ? `Filtered faculties (${groupedFilterResults.length})`
+                    : `Filtered programs (${filterResults.length})`
+                }
+              >
                 {filterResults.length === 0 ? (
                   <div className="px-4 py-8">
                     <TcasEmptyState
@@ -373,13 +454,21 @@ export function TCASPage() {
                     transition={{ staggerChildren: 0.03, delayChildren: 0.05 }}
                   >
                     <AnimatePresence>
-                      {filterResults.map((program) => (
-                        <ProgramSearchListItem
-                          key={program.programId}
-                          program={program}
-                          search={location.search}
-                        />
-                      ))}
+                      {shouldGroupUniversityOnly
+                        ? groupedFilterResults.map((group) => (
+                          <FacultyGroupListItem
+                            key={group.groupKey}
+                            group={group}
+                            search={location.search}
+                          />
+                        ))
+                        : filterResults.map((program) => (
+                          <ProgramSearchListItem
+                            key={program.programId}
+                            program={program}
+                            search={location.search}
+                          />
+                        ))}
                     </AnimatePresence>
                   </motion.div>
                 )}

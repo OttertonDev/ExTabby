@@ -9,6 +9,7 @@ import type {
   TcasRoundProject,
   TcasSearchFilters,
   TcasFilterOption,
+  TcasFacultyProgramGroup,
 } from '@/types/tcas';
 import {
   fetchTcasData,
@@ -17,6 +18,7 @@ import {
 } from '@/lib/tcas/tcasClient';
 import {
   filterPrograms,
+  groupProgramsByFacultyCampus,
   getUniversityOptions,
   getFieldOptions,
   findProgramById,
@@ -91,6 +93,8 @@ interface UseTcasSearchReturn {
   clearFilters: () => void;
   searchResults: TcasProgram[];   // text-query results (no filters applied)
   filterResults: TcasProgram[];   // filter-only results (no query applied)
+  groupedFilterResults: TcasFacultyProgramGroup[];
+  shouldGroupUniversityOnly: boolean;
   universityOptions: TcasFilterOption[];
   fieldOptions: TcasFilterOption[];
   hasActiveFilters: boolean;
@@ -180,6 +184,15 @@ export function useTcasSearch(programs: TcasProgram[]): UseTcasSearchReturn {
     [programs, filters]
   );
 
+  const shouldGroupUniversityOnly = Boolean(
+    filters.universityId && !filters.fieldId && !query.trim()
+  );
+
+  const groupedFilterResults = useMemo(
+    () => (shouldGroupUniversityOnly ? groupProgramsByFacultyCampus(filterResults) : []),
+    [filterResults, shouldGroupUniversityOnly]
+  );
+
   const hasActiveFilters = Boolean(filters.universityId || filters.fieldId);
 
   const clearFilters = useCallback(() => {
@@ -194,6 +207,8 @@ export function useTcasSearch(programs: TcasProgram[]): UseTcasSearchReturn {
     clearFilters,
     searchResults,
     filterResults,
+    groupedFilterResults,
+    shouldGroupUniversityOnly,
     universityOptions,
     fieldOptions,
     hasActiveFilters,

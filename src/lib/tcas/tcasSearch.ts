@@ -6,6 +6,7 @@ import type {
   TcasProgram,
   TcasFilterOption,
   TcasFaculty,
+  TcasFacultyProgramGroup,
   TcasField,
   TcasRoundProject,
   TcasRoundGroup,
@@ -22,8 +23,12 @@ export function getCompositeFieldKey(
 const FIELD_LABEL_RULES: Array<[RegExp, string]> = [
   [/computer|คอมพิวเตอร์|วิทยาการคอม/i, 'Computer Science'],
   [/software|ซอฟต์แวร์/i, 'Software Engineering'],
-  [/information technology|สารสนเทศ|เทคโนโลยีสารสนเทศ/i, 'Information Technology'],
-  [/data|ข้อมูล/i, 'Data Science'],
+  // Medical/Health Information BEFORE general IT to avoid false matches
+  [/medical information|health information|เวชสารสนเทศ|เวชระเบียน/i, 'Health Informatics'],
+  // Archives BEFORE IT to avoid false matches
+  [/archive|records management|library science|วิทยาระเบียน|บรรณารักษ์/i, 'Library & Information Science'],
+  // Information Technology (includes Data Science)
+  [/information technology|information system|data science|เทคโนโลยีสารสนเทศ|วิทยาการข้อมูล|วิทยาศาสตร์ข้อมูล/i, 'Information Technology'],
   [/medicine|medical|แพทย/i, 'Medicine'],
   [/nursing|พยาบาล/i, 'Nursing'],
   [/dent/i, 'Dentistry'],
@@ -92,16 +97,27 @@ function cleanupEnglishLabel(value: string): string | null {
 }
 
 export function getSimpleFieldLabel(program: TcasProgram): string {
-  const searchableText = [
+  // Prioritize field-specific text over faculty name to avoid false matches
+  // (e.g., "Human Biology" in "Faculty of ICT" should not match "Information Technology")
+  const primaryText = [
     program.fieldNameEn,
     program.fieldNameTh,
     program.groupFieldTh,
+  ].join(' ');
+
+  // Try matching with primary field text first
+  const primaryRule = FIELD_LABEL_RULES.find(([pattern]) => pattern.test(primaryText));
+  if (primaryRule) return primaryRule[1];
+
+  // If no match, try including faculty name (for cases where field name is generic)
+  const secondaryText = [
+    primaryText,
     program.facultyNameEn,
     program.facultyNameTh,
   ].join(' ');
 
-  const rule = FIELD_LABEL_RULES.find(([pattern]) => pattern.test(searchableText));
-  if (rule) return rule[1];
+  const secondaryRule = FIELD_LABEL_RULES.find(([pattern]) => pattern.test(secondaryText));
+  if (secondaryRule) return secondaryRule[1];
 
   return (
     cleanupEnglishLabel(program.fieldNameEn) ??
@@ -613,7 +629,25 @@ export function filterPrograms(
 
   // Apply field filter
   if (filters.fieldId) {
-    results = results.filter((p) => getSimpleFieldKey(p) === filters.fieldId);
+    console.log('[TCAS Filter] Filtering by fieldId:', filters.fieldId);
+    const beforeCount = results.length;
+    results = results.filter((p) => {
+      const key = getSimpleFieldKey(p);
+      const matches = key === filters.fieldId;
+
+      // Debug IT filter results
+      if (filters.fieldId === 'information-technology' && matches) {
+        console.log('[TCAS Filter] IT match:', {
+          programName: p.programNameTh,
+          fieldNameTh: p.fieldNameTh,
+          fieldNameEn: p.fieldNameEn,
+          computedKey: key
+        });
+      }
+
+      return matches;
+    });
+    console.log('[TCAS Filter] After field filter:', results.length, '/', beforeCount, 'programs');
   }
 
   // Apply text search if query exists
@@ -673,12 +707,152 @@ export function filterPrograms(
   return results.slice(0, TCAS_MAX_SEARCH_RESULTS);
 }
 
+/**
+ * Group already-filtered programs by faculty + campus for university-only browsing.
+ */
+export function groupProgramsByFacultyCampus(
+  programs: TcasProgram[]
+): TcasFacultyProgramGroup[] {
+  const groups = new Map<string, TcasFacultyProgramGroup>();
+
+  programs.forEach((program) => {
+    const campusKey = (program.campusNameTh || program.campusNameEn || '').trim().toLowerCase();
+    const groupKey = `${program.universityId}:${program.facultyId}:${campusKey}`;
+
+    const existing = groups.get(groupKey);
+    if (existing) {
+      existing.programs.push(program);
+      return;
+    }
+
+    groups.set(groupKey, {
+      groupKey,
+      universityId: program.universityId,
+      facultyId: program.facultyId,
+      facultyNameTh: program.facultyNameTh,
+      facultyNameEn: program.facultyNameEn,
+      campusNameTh: program.campusNameTh,
+      campusNameEn: program.campusNameEn,
+      programs: [program],
+    });
+  });
+
+  return Array.from(groups.values())
+    .map((group) => ({
+      ...group,
+      programs: [...group.programs].sort((a, b) => {
+        const byProgram = compareThai(a.programNameTh, b.programNameTh);
+        if (byProgram !== 0) return byProgram;
+
+        const byMajor = compareThai(a.majorNameTh ?? '', b.majorNameTh ?? '');
+        if (byMajor !== 0) return byMajor;
+
+        return compareThai(a.fieldNameTh, b.fieldNameTh);
+      }),
+    }))
+    .sort((a, b) => {
+      const byFaculty = compareThai(a.facultyNameTh, b.facultyNameTh);
+      if (byFaculty !== 0) return byFaculty;
+
+      return compareThai(a.campusNameTh, b.campusNameTh);
+    });
+}
+
 // ============================================================================
 // Filter Options Extraction
 // ============================================================================
 
 /**
- * Extract unique universities for filter dropdown
+ * University popularity ranking order based on QS/THE rankings, TCAS applicant preferences,
+ * and general prestige (as of 2025-2026).
+ * Lower rank number = more popular/prestigious.
+ * Universities not in this map will be sorted alphabetically at the end.
+ */
+const UNIVERSITY_POPULARITY_RANK: Record<string, number> = {
+  // Tier 1: Top National Universities (QS/THE Top Rankings)
+  '001': 1,   // Chulalongkorn - #1 in Thailand (QS Asia 2026)
+  '006': 2,   // Mahidol - Top medical/science university
+  '005': 3,   // Thammasat - Top law/political science/business
+  '004': 4,   // Chiang Mai - Top regional university
+  '002': 5,   // Kasetsart - Top agriculture/veterinary
+
+  // Tier 2: Top Technical & Strong Regional Universities
+  '014': 6,   // KMUTT (Bangmod) - Top technical university
+  '016': 7,   // KMITL (Ladkrabang) - Top technical university
+  '003': 8,   // Khon Kaen - Top northeastern university
+  '010': 9,   // Prince of Songkla - Top southern university
+  '015': 10,  // KMUTNB (Phra Nakhon Nuea) - Technical university
+
+  // Tier 3: Established Public Universities
+  '017': 11,  // Suranaree University of Technology
+  '020': 12,  // Naresuan
+  '008': 13,  // Silpakorn - Top arts/architecture
+  '009': 14,  // Srinakharinwirot
+  '019': 15,  // Burapha
+  '021': 16,  // Mahasarakham
+  '023': 17,  // Walailak
+  '024': 18,  // Mae Fah Luang
+  '018': 19,  // Ubon Ratchathani
+  '013': 20,  // Maejo
+  '022': 21,  // Thaksin
+  '027': 22,  // University of Phayao
+  '026': 23,  // Nakhon Phanom
+  '028': 24,  // Kalasin
+
+  // Tier 4: Specialized/Medical Universities
+  '032': 25,  // Chulabhorn Royal Academy
+  '216': 26,  // Navamindradhiraj University
+
+  // Tier 5: Open Universities
+  '034': 27,  // Ramkhamhaeng
+
+  // Tier 6: Rajamangala Universities (Technical/Vocational)
+  '191': 28,  // RMUTT (Thanyaburi)
+  '192': 29,  // RMUTK (Krungthep)
+  '194': 30,  // RMUTP (Phra Nakhon)
+  '196': 31,  // RMUTL (Lanna)
+  '193': 32,  // RMUTE (Tawan-ok)
+  '195': 33,  // RMUTR (Rattanakosin)
+  '197': 34,  // RMUTS (Srivijaya)
+  '199': 35,  // RMUTI (Isan)
+
+  // Tier 7: Rajabhat Universities (Regional Teacher Training)
+  '150': 36,  // Phranakhon Rajabhat
+  '177': 37,  // Chandrakasem Rajabhat
+  '174': 38,  // Bansomdej Rajabhat
+  '144': 39,  // Chiang Mai Rajabhat
+  '148': 40,  // Nakhon Ratchasima Rajabhat
+  '152': 41,  // Pibulsongkram Rajabhat
+  '164': 42,  // Songkhla Rajabhat
+  '171': 43,  // Ubon Rajabhat
+  '146': 44,  // Dhonburi Rajabhat
+  '153': 45,  // Valaya Alongkorn Rajabhat
+  '179': 46,  // Phetchaburi Rajabhat
+  '142': 47,  // Chaiyaphum Rajabhat
+
+  // Tier 8: Top Private Universities
+  '921': 48,  // Assumption University (ABAC)
+  '051': 49,  // Bangkok University
+  '068': 50,  // Rangsit University
+
+  // Tier 9: Other Private Universities
+  '054': 51,  // Sripatum
+  '056': 52,  // UTCC (University of the Thai Chamber of Commerce)
+  '103': 53,  // Dhurakij Pundit
+  '912': 54,  // Payap
+  '061': 55,  // Mahanakorn University of Technology
+  '073': 56,  // Huachiew Chalermprakiet
+  '918': 57,  // Panyapiwat Institute of Management (PIM)
+  '919': 58,  // Rajapruk University
+  '905': 59,  // Nation University
+
+  // Tier 10: Other Universities
+  '165': 60,  // Suan Dusit
+  '166': 61,  // Suan Sunandha Rajabhat
+};
+
+/**
+ * Extract unique universities for filter dropdown, sorted by popularity/prestige
  */
 export function getUniversityOptions(
   programs: TcasProgram[]
@@ -693,7 +867,18 @@ export function getUniversityOptions(
 
   return Array.from(uniqueUniversities.entries())
     .map(([key, label]) => ({ key, label }))
-    .sort((a, b) => a.label.localeCompare(b.label, 'th'));
+    .sort((a, b) => {
+      const rankA = UNIVERSITY_POPULARITY_RANK[a.key] ?? 9999;
+      const rankB = UNIVERSITY_POPULARITY_RANK[b.key] ?? 9999;
+
+      // Sort by popularity rank first
+      if (rankA !== rankB) {
+        return rankA - rankB;
+      }
+
+      // If both have the same rank (or both unranked), sort alphabetically by Thai name
+      return a.label.localeCompare(b.label, 'th');
+    });
 }
 
 /**
@@ -703,20 +888,54 @@ export function getFieldOptions(
   programs: TcasProgram[],
   universityId?: string | null
 ): TcasFilterOption[] {
+  console.log('[TCAS] getFieldOptions called with', programs.length, 'programs, universityId:', universityId);
+
   const uniqueFields = new Map<string, string>();
 
-  programs
-    .filter((program) => !universityId || program.universityId === universityId)
-    .forEach((program) => {
-      const key = getSimpleFieldKey(program);
-      if (!uniqueFields.has(key)) {
-        uniqueFields.set(key, getSimpleFieldLabel(program));
-      }
-    });
+  const filteredPrograms = programs
+    .filter((program) => !universityId || program.universityId === universityId);
 
-  return Array.from(uniqueFields.entries())
+  console.log('[TCAS] After university filter:', filteredPrograms.length, 'programs');
+
+  // Debug: Log programs that might be miscategorized
+  const debugPrograms = filteredPrograms.filter(p =>
+    p.programNameTh?.includes('วิทยาระเบียน') ||
+    p.fieldNameTh?.includes('วิทยาระเบียน')
+  );
+
+  console.log('[TCAS] Found', debugPrograms.length, 'วิทยาระเบียน programs');
+
+  if (debugPrograms.length > 0) {
+    console.log('[TCAS Debug] วิทยาระเบียน programs:');
+    debugPrograms.forEach(p => {
+      const key = getSimpleFieldKey(p);
+      const label = getSimpleFieldLabel(p);
+      console.log({
+        programName: p.programNameTh,
+        fieldNameTh: p.fieldNameTh,
+        fieldNameEn: p.fieldNameEn,
+        groupFieldTh: p.groupFieldTh,
+        facultyNameTh: p.facultyNameTh,
+        computedKey: key,
+        computedLabel: label
+      });
+    });
+  }
+
+  filteredPrograms.forEach((program) => {
+    const key = getSimpleFieldKey(program);
+    if (!uniqueFields.has(key)) {
+      uniqueFields.set(key, getSimpleFieldLabel(program));
+    }
+  });
+
+  const result = Array.from(uniqueFields.entries())
     .map(([key, label]) => ({ key, label }))
     .sort((a, b) => compareEnglish(a.label, b.label));
+
+  console.log('[TCAS] Returning', result.length, 'field options:', result.map(r => r.label));
+
+  return result;
 }
 
 // ============================================================================
