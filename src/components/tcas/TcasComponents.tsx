@@ -45,8 +45,10 @@ interface TcasEmptyStateProps {
 export function TcasEmptyState({ title, body, icon = 'inbox' }: TcasEmptyStateProps) {
   return (
     <div className="rounded-[1.375rem] bg-surface-variant px-6 py-8 text-center ring-1 ring-border/20">
-      <MaterialSymbol name={icon} className="mx-auto text-[3rem] text-muted-foreground/40" />
-      <h3 className="mt-3 text-title-medium font-black text-foreground">{title}</h3>
+      <div className="mx-auto grid size-20 place-items-center rounded-[1.65rem] bg-tabby-mint">
+        <MaterialSymbol name={icon} className="text-[2.8rem] text-primary/55" />
+      </div>
+      <h3 className="mt-4 text-title-medium font-black text-foreground">{title}</h3>
       <p className="mt-2 text-body-medium text-muted-foreground">{body}</p>
     </div>
   );

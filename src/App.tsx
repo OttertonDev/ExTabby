@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { useAuth } from './hooks/useAuth';
-import { signInWithGoogle } from './lib/auth';
+import { DEMO_MODE_STORAGE_KEY, notifyAuthChanged, signInWithGoogle } from './lib/auth';
 import { AppLayout } from './components/layout/AppLayout';
 import { TimetablePage } from './pages/TimetablePage';
 import { AssignmentsPage } from './pages/AssignmentsPage';
@@ -22,6 +22,21 @@ function AwaitingImplementationPage() {
   );
 }
 
+function NotFoundPage() {
+  return (
+    <div className="flex h-full min-h-full items-center justify-center px-6 text-center">
+      <div>
+        <p className="font-display text-headline-medium font-black text-foreground">
+          Page not found
+        </p>
+        <p className="mt-2 text-body-medium text-muted-foreground">
+          This Tabby route does not exist yet.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function LoginPage() {
   const handleDemoMode = () => {
     // Create a demo user in localStorage
@@ -31,8 +46,8 @@ function LoginPage() {
       displayName: 'Demo User',
       photoURL: tabbyAssets.icon,
     };
-    localStorage.setItem('tabby-demo-mode', JSON.stringify(demoUser));
-    window.location.reload();
+    localStorage.setItem(DEMO_MODE_STORAGE_KEY, JSON.stringify(demoUser));
+    notifyAuthChanged();
   };
 
   return (
@@ -96,6 +111,7 @@ function AnimatedRoutes() {
         <Route path="/tcas/program/:programId" element={<ProgramDetailPage />} />
         <Route path="/classroom" element={<AwaitingImplementationPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </AnimatePresence>
   );

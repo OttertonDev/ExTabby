@@ -11,6 +11,60 @@ import type {
 } from '@/types/tcas';
 import { TCAS_LOGO_BASE_URL } from '@/types/tcas';
 
+const FALLBACK_TEXT = 'Not specified';
+
+function cleanText(value: string | number | null | undefined): string | null {
+  if (value === null || value === undefined) return null;
+
+  const text = String(value).trim();
+  if (!text || text === '-' || text === '0') return null;
+  return text;
+}
+
+function requiredText(
+  value: string | number | null | undefined,
+  fallback = FALLBACK_TEXT
+): string {
+  return cleanText(value) ?? fallback;
+}
+
+function cleanNumber(value: string | number | null | undefined): number {
+  if (value === null || value === undefined) return 0;
+
+  const numberValue = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(numberValue)) return 0;
+  return numberValue;
+}
+
+function cleanNullableNumber(value: string | number | null | undefined): number | null {
+  const text = cleanText(value);
+  if (!text) return null;
+
+  const numberValue = Number(text);
+  return Number.isFinite(numberValue) ? numberValue : null;
+}
+
+function cleanScores(value: Record<string, string | number> | null | undefined): Record<string, number> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+
+  return Object.entries(value).reduce<Record<string, number>>((scores, [key, score]) => {
+    const numberValue = cleanNullableNumber(score);
+    if (numberValue !== null) {
+      scores[key] = numberValue;
+    }
+    return scores;
+  }, {});
+}
+
+export function normalizeExternalUrl(value: string | null | undefined): string | null {
+  const text = cleanText(value);
+  if (!text) return null;
+
+  if (/^https?:\/\//i.test(text)) return text;
+  if (/^www\./i.test(text)) return `https://${text}`;
+  return null;
+}
+
 // ============================================================================
 // University Parser
 // ============================================================================
@@ -19,10 +73,10 @@ export function parseUniversity(
   data: UniversityApiResponse
 ): TcasUniversity {
   return {
-    id: data.university_id,
-    nameTh: data.university_name,
-    nameEn: data.university_name_en,
-    type: data.university_type,
+    id: requiredText(data.university_id, 'unknown-university'),
+    nameTh: requiredText(data.university_name),
+    nameEn: requiredText(data.university_name_en),
+    type: requiredText(data.university_type),
     logoUrl: `${TCAS_LOGO_BASE_URL}/${data.university_id}.png`,
     logoFilePath: null,
   };
@@ -40,27 +94,27 @@ export function parseUniversities(
 
 export function parseProgram(data: ProgramApiResponse): TcasProgram {
   return {
-    programId: data.program_id,
-    universityId: data.university_id,
-    universityNameTh: data.university_name_th,
-    universityNameEn: data.university_name_en,
-    campusNameTh: data.campus_name_th,
-    campusNameEn: data.campus_name_en,
-    facultyId: data.faculty_id,
-    facultyNameTh: data.faculty_name_th,
-    facultyNameEn: data.faculty_name_en,
-    groupFieldId: data.group_field_id,
-    groupFieldTh: data.group_field_th,
-    fieldId: data.field_id,
-    fieldNameTh: data.field_name_th,
-    fieldNameEn: data.field_name_en,
-    programNameTh: data.program_name_th,
-    programNameEn: data.program_name_en,
-    programTypeNameTh: data.program_type_name_th,
-    cost: data.cost,
-    graduateRate: data.graduate_rate,
-    employmentRate: data.employment_rate,
-    medianSalary: data.median_salary,
+    programId: requiredText(data.program_id, 'unknown-program'),
+    universityId: requiredText(data.university_id, 'unknown-university'),
+    universityNameTh: requiredText(data.university_name_th),
+    universityNameEn: requiredText(data.university_name_en),
+    campusNameTh: requiredText(data.campus_name_th),
+    campusNameEn: requiredText(data.campus_name_en),
+    facultyId: requiredText(data.faculty_id, 'unknown-faculty'),
+    facultyNameTh: requiredText(data.faculty_name_th),
+    facultyNameEn: requiredText(data.faculty_name_en),
+    groupFieldId: requiredText(data.group_field_id, 'unknown-group'),
+    groupFieldTh: requiredText(data.group_field_th),
+    fieldId: requiredText(data.field_id, 'unknown-field'),
+    fieldNameTh: requiredText(data.field_name_th),
+    fieldNameEn: requiredText(data.field_name_en),
+    programNameTh: requiredText(data.program_name_th),
+    programNameEn: requiredText(data.program_name_en),
+    programTypeNameTh: requiredText(data.program_type_name_th),
+    cost: cleanText(data.cost),
+    graduateRate: cleanText(data.graduate_rate),
+    employmentRate: cleanText(data.employment_rate),
+    medianSalary: cleanText(data.median_salary),
   };
 }
 
@@ -78,8 +132,10 @@ export function parsePrograms(data: ProgramApiResponse[]): TcasProgram[] {
  */
 function parseRoundType(type: string): { roundNumber: number; roundYear: string } {
   const parts = type.split('_');
+  const roundNumber = Number.parseInt(parts[0], 10);
+
   return {
-    roundNumber: Number.parseInt(parts[0], 10),
+    roundNumber: Number.isNaN(roundNumber) ? 0 : roundNumber,
     roundYear: parts[1] || '',
   };
 }
@@ -90,17 +146,17 @@ export function parseRoundProject(
   const { roundNumber, roundYear } = parseRoundType(data.type);
 
   return {
-    projectId: data.project_id,
-    projectNameTh: data.project_name_th,
+    projectId: requiredText(data.project_id, 'unknown-project'),
+    projectNameTh: requiredText(data.project_name_th),
     roundNumber,
     roundYear,
-    seats: data.receive_student_number,
-    minGpax: data.min_gpax,
+    seats: cleanNumber(data.receive_student_number),
+    minGpax: cleanNullableNumber(data.min_gpax),
     scoreConditions: data.score_conditions || {},
-    scores: data.scores || {},
-    description: data.description,
-    condition: data.condition,
-    link: data.link,
+    scores: cleanScores(data.scores),
+    description: cleanText(data.description),
+    condition: cleanText(data.condition),
+    link: normalizeExternalUrl(data.link),
   };
 }
 

@@ -2,6 +2,7 @@
 // Reference: Tabby-Schedule/app/src/main/java/com/ottertondev/tabby/feature/road/RoadToUniversityViewModel.kt
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type {
   TcasUniversity,
   TcasProgram,
@@ -65,6 +66,7 @@ export function useTcasData(): UseTcasDataReturn {
 
   // Initial load
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadData();
   }, [loadData]);
 
@@ -97,11 +99,62 @@ interface UseTcasSearchReturn {
  * Hook for managing search state and filtering programs
  */
 export function useTcasSearch(programs: TcasProgram[]): UseTcasSearchReturn {
-  const [query, setQuery] = useState('');
-  const [filters, setFilters] = useState<TcasSearchFilters>({
-    universityId: null,
-    fieldId: null,
-  });
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const query = searchParams.get('q') ?? '';
+  const filters: TcasSearchFilters = useMemo(
+    () => ({
+      universityId: searchParams.get('university'),
+      fieldId: searchParams.get('field'),
+    }),
+    [searchParams]
+  );
+
+  const updateSearchParams = useCallback(
+    (updater: (next: URLSearchParams) => void) => {
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+          updater(next);
+          return next;
+        },
+        { replace: true }
+      );
+    },
+    [setSearchParams]
+  );
+
+  const setQuery = useCallback(
+    (nextQuery: string) => {
+      updateSearchParams((next) => {
+        if (nextQuery.trim()) {
+          next.set('q', nextQuery);
+        } else {
+          next.delete('q');
+        }
+      });
+    },
+    [updateSearchParams]
+  );
+
+  const setFilters = useCallback(
+    (nextFilters: TcasSearchFilters) => {
+      updateSearchParams((next) => {
+        if (nextFilters.universityId) {
+          next.set('university', nextFilters.universityId);
+        } else {
+          next.delete('university');
+        }
+
+        if (nextFilters.fieldId) {
+          next.set('field', nextFilters.fieldId);
+        } else {
+          next.delete('field');
+        }
+      });
+    },
+    [updateSearchParams]
+  );
 
   // Compute filter options
   const universityOptions = useMemo(
@@ -109,7 +162,10 @@ export function useTcasSearch(programs: TcasProgram[]): UseTcasSearchReturn {
     [programs]
   );
 
-  const fieldOptions = useMemo(() => getFieldOptions(programs), [programs]);
+  const fieldOptions = useMemo(
+    () => getFieldOptions(programs, filters.universityId),
+    [programs, filters.universityId]
+  );
 
   // Compute search results - NO DEBOUNCING for instant updates
   const results = useMemo(
@@ -121,7 +177,7 @@ export function useTcasSearch(programs: TcasProgram[]): UseTcasSearchReturn {
 
   const clearFilters = useCallback(() => {
     setFilters({ universityId: null, fieldId: null });
-  }, []);
+  }, [setFilters]);
 
   return {
     query,
@@ -168,6 +224,7 @@ export function useTcasProgramDetail(
   // Load rounds when programId changes
   useEffect(() => {
     if (!programId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRounds([]);
       setLoading(false);
       setError(null);

@@ -76,16 +76,16 @@ export function TabbyEmptyState({
   icon?: string;
 }) {
   return (
-    <div className="overflow-hidden rounded-[1.75rem] bg-surface-variant text-center ring-1 ring-border/25">
+    <div className="rounded-[1.75rem] bg-surface-variant px-6 py-7 text-center ring-1 ring-border/25">
       {!compact && (
-        <div className="mx-auto flex h-36 max-w-sm items-center justify-center bg-tabby-mint">
+        <div className="mx-auto mb-5 grid size-24 place-items-center rounded-[2rem] bg-tabby-mint">
           <MaterialSymbol
             name={icon}
-            className="text-[5rem] text-primary/30"
+            className="text-[3.5rem] text-primary/55"
           />
         </div>
       )}
-      <div className={cn('mx-auto max-w-xl px-6', compact ? 'py-7' : 'py-6')}>
+      <div className={cn('mx-auto max-w-xl', compact && 'py-1')}>
         <h3 className="text-title-large font-black text-foreground">{title}</h3>
         <p className="mt-2 text-body-medium text-muted-foreground">{body}</p>
       </div>

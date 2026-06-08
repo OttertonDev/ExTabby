@@ -1,8 +1,8 @@
 // Main TCAS Search Page - University browser and program search
 // Reference: Tabby-Schedule/app/src/main/java/com/ottertondev/tabby/feature/road/RoadToUniversityRoute.kt
 
-import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useMemo, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TabbyPageHeader, TabbySection, MaterialSymbol } from '@/components/tabby/TabbyPrimitives';
 import { useTcasData, useTcasSearch } from '@/hooks/useTcas';
@@ -14,11 +14,7 @@ import {
   TcasFilterChips,
   UniversityLogo,
 } from '@/components/tcas/TcasComponents';
-import type { TcasUniversity, TcasProgram } from '@/types/tcas';
-
-// ============================================================================
-// Page Animations
-// ============================================================================
+import type { TcasUniversity, TcasProgram, TcasFilterOption } from '@/types/tcas';
 
 const pageVariants = {
   initial: { opacity: 0, y: 12 },
@@ -38,14 +34,16 @@ const expressiveTransition = {
   mass: 1,
 };
 
-// ============================================================================
-// University List Item
-// ============================================================================
-
-function UniversityListItem({ university }: { university: TcasUniversity }) {
+function UniversityListItem({
+  university,
+  search,
+}: {
+  university: TcasUniversity;
+  search: string;
+}) {
   return (
     <Link
-      to={`/tcas/university/${university.id}`}
+      to={{ pathname: `/tcas/university/${encodeURIComponent(university.id)}`, search }}
       className="block"
     >
       <motion.div
@@ -67,14 +65,16 @@ function UniversityListItem({ university }: { university: TcasUniversity }) {
   );
 }
 
-// ============================================================================
-// Program Search Result Item
-// ============================================================================
-
-function ProgramSearchListItem({ program }: { program: TcasProgram }) {
+function ProgramSearchListItem({
+  program,
+  search,
+}: {
+  program: TcasProgram;
+  search: string;
+}) {
   return (
     <Link
-      to={`/tcas/program/${program.programId}`}
+      to={{ pathname: `/tcas/program/${encodeURIComponent(program.programId)}`, search }}
       className="block"
     >
       <motion.div
@@ -105,11 +105,76 @@ function ProgramSearchListItem({ program }: { program: TcasProgram }) {
   );
 }
 
-// ============================================================================
-// Main Component
-// ============================================================================
+function FilterMenu({
+  label,
+  value,
+  allLabel,
+  options,
+  open,
+  onOpenChange,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  allLabel: string;
+  options: TcasFilterOption[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onChange: (value: string) => void;
+}) {
+  const selectedLabel = options.find((option) => option.key === value)?.label ?? allLabel;
+
+  return (
+    <div className="min-w-0">
+      <span className="mb-1.5 block text-body-small font-bold text-muted-foreground">
+        {label}
+      </span>
+      <button
+        type="button"
+        onClick={() => onOpenChange(!open)}
+        className="flex h-11 w-full min-w-0 items-center justify-between gap-3 rounded-full bg-surface-variant px-4 text-left text-body-medium font-bold text-foreground ring-1 ring-border/25 transition-colors hover:bg-surface-variant/75 focus:outline-none focus:ring-2 focus:ring-primary/45"
+        aria-expanded={open}
+      >
+        <span className="min-w-0 flex-1 truncate">{selectedLabel}</span>
+        <MaterialSymbol
+          name={open ? 'expand_less' : 'expand_more'}
+          className="text-[1.25rem] text-muted-foreground"
+        />
+      </button>
+      {open && (
+        <div className="mt-2 max-h-72 w-full overflow-y-auto rounded-[1rem] bg-background p-1 ring-1 ring-border/30 shadow-elevation-2">
+          <button
+            type="button"
+            onClick={() => {
+              onChange('');
+              onOpenChange(false);
+            }}
+            className="flex w-full items-start rounded-xl px-3 py-2 text-left text-body-small font-bold text-foreground hover:bg-surface-variant"
+          >
+            {allLabel}
+          </button>
+          {options.map((option) => (
+            <button
+              key={option.key}
+              type="button"
+              onClick={() => {
+                onChange(option.key);
+                onOpenChange(false);
+              }}
+              className="flex w-full items-start rounded-xl px-3 py-2 text-left text-body-small font-bold text-foreground hover:bg-surface-variant"
+            >
+              <span className="line-clamp-2 min-w-0">{option.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function TCASPage() {
+  const location = useLocation();
+  const [openFilter, setOpenFilter] = useState<'university' | 'field' | null>(null);
   const { universities, programs, loading, error, refresh } = useTcasData();
   const {
     query,
@@ -123,10 +188,10 @@ export function TCASPage() {
     hasActiveFilters,
   } = useTcasSearch(programs);
 
-  // Show university list when no query
   const showUniversityList = !query.trim() && !hasActiveFilters;
+  const selectedUniversity = filters.universityId ?? '';
+  const selectedField = filters.fieldId ?? '';
 
-  // Build filter chips
   const filterChips = useMemo(() => {
     const chips = [];
     if (filters.universityId) {
@@ -168,16 +233,45 @@ export function TCASPage() {
           titleVariation='"wght" 1000, "wdth" 25, "ROND" 100'
         />
 
-        {/* Search Bar */}
         <div className="mb-5">
           <TcasSearchBar
             value={query}
             onChange={setQuery}
-            placeholder="ค้นหาสาขาวิชา, มหาวิทยาลัย, คณะ..."
+            placeholder="Search programs, universities, faculties..."
           />
         </div>
 
-        {/* Filter Chips */}
+        <div className="mb-4 grid min-w-0 gap-3 md:grid-cols-2">
+          <FilterMenu
+            label="University"
+            value={selectedUniversity}
+            allLabel="All universities"
+            options={universityOptions}
+            open={openFilter === 'university'}
+            onOpenChange={(open) => setOpenFilter(open ? 'university' : null)}
+            onChange={(value) =>
+              setFilters({
+                universityId: value || null,
+                fieldId: null,
+              })
+            }
+          />
+          <FilterMenu
+            label="Field"
+            value={selectedField}
+            allLabel="All fields"
+            options={fieldOptions}
+            open={openFilter === 'field'}
+            onOpenChange={(open) => setOpenFilter(open ? 'field' : null)}
+            onChange={(value) =>
+              setFilters({
+                ...filters,
+                fieldId: value || null,
+              })
+            }
+          />
+        </div>
+
         {hasActiveFilters && (
           <div className="mb-4 flex items-center gap-3">
             <TcasFilterChips chips={filterChips} />
@@ -190,23 +284,19 @@ export function TCASPage() {
           </div>
         )}
 
-        {/* Loading State */}
         {loading && (
           <TabbySection title="Loading...">
             <TcasListSkeleton count={8} />
           </TabbySection>
         )}
 
-        {/* Error State */}
         {error && !loading && (
           <TcasErrorCard message={error} onRetry={refresh} />
         )}
 
-        {/* Content */}
         {!loading && !error && (
           <>
             {showUniversityList ? (
-              // University List View
               <TabbySection title={`Universities (${universities.length})`}>
                 {universities.length === 0 ? (
                   <div className="px-4 py-8 text-center text-body-medium text-muted-foreground">
@@ -220,14 +310,17 @@ export function TCASPage() {
                   >
                     <AnimatePresence>
                       {universities.map((university) => (
-                        <UniversityListItem key={university.id} university={university} />
+                        <UniversityListItem
+                          key={university.id}
+                          university={university}
+                          search={location.search}
+                        />
                       ))}
                     </AnimatePresence>
                   </motion.div>
                 )}
               </TabbySection>
             ) : (
-              // Search Results View
               <TabbySection title={`Programs (${results.length})`}>
                 {results.length === 0 ? (
                   <div className="px-4 py-8">
@@ -245,7 +338,11 @@ export function TCASPage() {
                   >
                     <AnimatePresence>
                       {results.map((program) => (
-                        <ProgramSearchListItem key={program.programId} program={program} />
+                        <ProgramSearchListItem
+                          key={program.programId}
+                          program={program}
+                          search={location.search}
+                        />
                       ))}
                     </AnimatePresence>
                   </motion.div>

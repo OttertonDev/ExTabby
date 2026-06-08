@@ -1,8 +1,8 @@
 // Program Detail Page - Shows program info and admission rounds
 // Reference: Tabby-Schedule/app/src/main/java/com/ottertondev/tabby/feature/road/RoadProgramDetailRoute.kt
 
-import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Component, type ErrorInfo, type ReactNode, useMemo, useState } from 'react';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { TabbySection, MaterialSymbol } from '@/components/tabby/TabbyPrimitives';
 import { useTcasData, useTcasProgramDetail } from '@/hooks/useTcas';
@@ -10,14 +10,11 @@ import {
   TcasListSkeleton,
   TcasErrorCard,
   TcasInfoRow,
+  TcasEmptyState,
   UniversityLogo,
 } from '@/components/tcas/TcasComponents';
-import type { TcasRoundProject } from '@/types/tcas';
+import type { TcasProgram, TcasRoundProject } from '@/types/tcas';
 import { TCAS_ROUND_COLORS } from '@/types/tcas';
-
-// ============================================================================
-// Page Animations
-// ============================================================================
 
 const pageVariants = {
   initial: { opacity: 0, y: 12 },
@@ -25,11 +22,38 @@ const pageVariants = {
   exit: { opacity: 0, y: -12 },
 };
 
-// ============================================================================
-// Program Header
-// ============================================================================
+class ProgramDetailErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
 
-function ProgramHeader({ program }: { program: any }) {
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('Program detail crashed:', error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <TcasErrorCard message="This program could not be displayed. Please go back to TCAS and try again." />
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+interface TabButton {
+  id: string;
+  label: string;
+  badge?: number;
+}
+
+function ProgramHeader({ program }: { program: TcasProgram }) {
   return (
     <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
       <UniversityLogo
@@ -50,16 +74,6 @@ function ProgramHeader({ program }: { program: any }) {
       </div>
     </div>
   );
-}
-
-// ============================================================================
-// Tab Navigation
-// ============================================================================
-
-interface TabButton {
-  id: string;
-  label: string;
-  badge?: number;
 }
 
 function TabNavigation({
@@ -88,9 +102,7 @@ function TabNavigation({
             {tab.badge !== undefined && (
               <span
                 className="flex size-6 items-center justify-center rounded-full text-xs font-black"
-                style={{
-                  backgroundColor: tab.badge ? TCAS_ROUND_COLORS[tab.badge] : undefined,
-                }}
+                style={{ backgroundColor: TCAS_ROUND_COLORS[tab.badge] }}
               >
                 {tab.badge}
               </span>
@@ -103,40 +115,38 @@ function TabNavigation({
   );
 }
 
-// ============================================================================
-// Main Info Tab Content
-// ============================================================================
+function displayValue(value: string | null): string {
+  return value ?? 'N/A';
+}
 
-function MainInfoTab({ program }: { program: any }) {
+function MainInfoTab({ program }: { program: TcasProgram }) {
   return (
     <TabbySection>
       <TcasInfoRow label="Campus" value={program.campusNameTh} icon="location_on" />
       <TcasInfoRow label="Program Type" value={program.programTypeNameTh} icon="school" />
-      <TcasInfoRow label="Tuition Cost" value={program.cost || 'N/A'} icon="payments" />
+      <TcasInfoRow label="Tuition Cost" value={displayValue(program.cost)} icon="payments" />
       <TcasInfoRow
         label="Graduate Rate"
-        value={program.graduateRate || 'N/A'}
+        value={displayValue(program.graduateRate)}
         icon="workspace_premium"
       />
       <TcasInfoRow
         label="Employment Rate"
-        value={program.employmentRate || 'N/A'}
+        value={displayValue(program.employmentRate)}
         icon="work"
       />
       <TcasInfoRow
         label="Median Salary"
-        value={program.medianSalary || 'N/A'}
+        value={displayValue(program.medianSalary)}
         icon="account_balance_wallet"
       />
     </TabbySection>
   );
 }
 
-// ============================================================================
-// Round Project Item
-// ============================================================================
-
 function RoundProjectItem({ project }: { project: TcasRoundProject }) {
+  const hasScores = project.scores && Object.keys(project.scores).length > 0;
+
   return (
     <div className="border-b border-border/20 px-4 py-4 last:border-b-0">
       <h4 className="text-title-medium font-black text-foreground">{project.projectNameTh}</h4>
@@ -145,7 +155,7 @@ function RoundProjectItem({ project }: { project: TcasRoundProject }) {
         <div className="flex items-center gap-2">
           <MaterialSymbol name="group" className="text-[1rem] text-primary" />
           <span className="text-muted-foreground">Seats:</span>
-          <span className="font-bold text-foreground">{project.seats} คน</span>
+          <span className="font-bold text-foreground">{project.seats} seats</span>
         </div>
 
         {project.minGpax !== null && (
@@ -156,7 +166,7 @@ function RoundProjectItem({ project }: { project: TcasRoundProject }) {
           </div>
         )}
 
-        {project.scores && Object.keys(project.scores).length > 0 && (
+        {hasScores && (
           <div className="mt-2">
             <p className="mb-1 font-bold text-muted-foreground">Score Requirements:</p>
             <div className="ml-6 space-y-1">
@@ -175,6 +185,10 @@ function RoundProjectItem({ project }: { project: TcasRoundProject }) {
           </div>
         )}
 
+        {project.description && (
+          <p className="text-body-small text-muted-foreground">{project.description}</p>
+        )}
+
         {project.link && (
           <a
             href={project.link}
@@ -191,28 +205,14 @@ function RoundProjectItem({ project }: { project: TcasRoundProject }) {
   );
 }
 
-// ============================================================================
-// Round Tab Content
-// ============================================================================
-
-function RoundTab({ roundNumber, projects }: { roundNumber: number; projects: TcasRoundProject[] }) {
-  if (projects.length === 0) {
-    return (
-      <TabbySection>
-        <div className="px-4 py-8 text-center text-body-medium text-muted-foreground">
-          No projects for this round.
-        </div>
-      </TabbySection>
-    );
-  }
-
+function RoundTab({ projects }: { projects: TcasRoundProject[] }) {
   const totalSeats = projects.reduce((sum, p) => sum + p.seats, 0);
 
   return (
-    <TabbySection title={`Total Seats: ${totalSeats} คน`}>
+    <TabbySection title={`Total Seats: ${totalSeats} seats`}>
       {projects.map((project, index) => (
         <RoundProjectItem
-          key={`round${roundNumber}-proj${index}`}
+          key={`${project.roundNumber}-${project.projectId}-${index}`}
           project={project}
         />
       ))}
@@ -220,39 +220,37 @@ function RoundTab({ roundNumber, projects }: { roundNumber: number; projects: Tc
   );
 }
 
-// ============================================================================
-// Main Component
-// ============================================================================
-
 export function ProgramDetailPage() {
   const { programId } = useParams<{ programId: string }>();
-  const { programs } = useTcasData();
-  const { program, roundGroups, loading, error } = useTcasProgramDetail(programs, programId);
+  const location = useLocation();
+  const {
+    programs,
+    loading: dataLoading,
+    error: dataError,
+    refresh,
+  } = useTcasData();
+  const baseProgram = programs.find((item) => item.programId === programId);
+  const { program, roundGroups, loading: roundsLoading, error: roundsError } =
+    useTcasProgramDetail(programs, baseProgram ? programId : undefined);
   const [activeTab, setActiveTab] = useState('info');
 
-  // Build tabs
-  const tabs: TabButton[] = [
-    { id: 'info', label: 'Info' },
-    ...roundGroups.map((group) => ({
-      id: `round-${group.roundNumber}`,
-      label: `รอบ ${group.roundNumber}`,
-      badge: group.roundNumber,
-    })),
-  ];
+  const tabs: TabButton[] = useMemo(
+    () => [
+      { id: 'info', label: 'Info' },
+      ...roundGroups.map((group) => ({
+        id: `round-${group.roundNumber}`,
+        label: `Round ${group.roundNumber}`,
+        badge: group.roundNumber,
+      })),
+    ],
+    [roundGroups]
+  );
 
-  if (!program && !loading) {
-    return (
-      <motion.div
-        className="h-full min-h-full overflow-auto px-5 pb-2 pt-9 sm:px-8 sm:pt-9 lg:px-[108px]"
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        variants={pageVariants}
-      >
-        <TcasErrorCard message="Program not found" />
-      </motion.div>
-    );
-  }
+  const safeActiveTab = tabs.some((tab) => tab.id === activeTab) ? activeTab : 'info';
+
+  const activeRoundGroup = roundGroups.find(
+    (group) => safeActiveTab === `round-${group.roundNumber}`
+  );
 
   return (
     <motion.div
@@ -264,42 +262,60 @@ export function ProgramDetailPage() {
       transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
     >
       <div className="w-full pb-4">
-        {/* Back Button */}
         <Link
-          to="/tcas"
+          to={{ pathname: '/tcas', search: location.search }}
           className="mb-4 inline-flex items-center gap-1 text-body-medium text-primary hover:underline"
         >
           <MaterialSymbol name="arrow_back" className="text-[1.15rem]" />
           <span>Back to TCAS</span>
         </Link>
 
-        {program && <ProgramHeader program={program} />}
-
-        {loading ? (
-          <TabbySection title="Loading rounds...">
-            <TcasListSkeleton count={3} />
+        {dataLoading && (
+          <TabbySection title="Loading program...">
+            <TcasListSkeleton count={4} />
           </TabbySection>
-        ) : error ? (
-          <TcasErrorCard message={error} />
-        ) : (
-          <>
-            <TabNavigation tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+        )}
 
-            {activeTab === 'info' && program && <MainInfoTab program={program} />}
+        {dataError && !dataLoading && (
+          <TcasErrorCard message={dataError} onRetry={refresh} />
+        )}
 
-            {roundGroups.map((group) => {
-              if (activeTab === `round-${group.roundNumber}`) {
-                return (
-                  <RoundTab
-                    key={`round-tab-${group.roundNumber}`}
-                    roundNumber={group.roundNumber}
-                    projects={group.projects}
+        {!dataLoading && !dataError && !program && (
+          <TcasErrorCard message="Program not found" />
+        )}
+
+        {!dataLoading && !dataError && program && (
+          <ProgramDetailErrorBoundary>
+            <ProgramHeader program={program} />
+            <TabNavigation tabs={tabs} activeTab={safeActiveTab} onTabChange={setActiveTab} />
+
+            {safeActiveTab === 'info' && (
+              <div className="space-y-5">
+                <MainInfoTab program={program} />
+                {roundsLoading && (
+                  <TabbySection title="Loading rounds...">
+                    <TcasListSkeleton count={3} />
+                  </TabbySection>
+                )}
+                {roundsError && !roundsLoading && (
+                  <TcasEmptyState
+                    title="Admission rounds unavailable"
+                    body={roundsError}
+                    icon="event_busy"
                   />
-                );
-              }
-              return null;
-            })}
-          </>
+                )}
+                {!roundsLoading && !roundsError && roundGroups.length === 0 && (
+                  <TcasEmptyState
+                    title="No admission rounds found"
+                    body="myTCAS does not currently publish round details for this program."
+                    icon="event_busy"
+                  />
+                )}
+              </div>
+            )}
+
+            {activeRoundGroup && <RoundTab projects={activeRoundGroup.projects} />}
+          </ProgramDetailErrorBoundary>
         )}
       </div>
     </motion.div>

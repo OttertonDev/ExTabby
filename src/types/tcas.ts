@@ -24,6 +24,7 @@ export interface TcasFaculty {
 export interface TcasField {
   universityId: string;
   facultyId: string;
+  groupFieldId: string;
   fieldId: string;
   nameTh: string;
   nameEn: string;
@@ -47,10 +48,10 @@ export interface TcasProgram {
   programNameTh: string;
   programNameEn: string;
   programTypeNameTh: string;
-  cost: string;
-  graduateRate: string;
-  employmentRate: string;
-  medianSalary: string;
+  cost: string | null;
+  graduateRate: string | null;
+  employmentRate: string | null;
+  medianSalary: string | null;
 }
 
 export interface TcasRoundProject {
@@ -62,9 +63,9 @@ export interface TcasRoundProject {
   minGpax: number | null;
   scoreConditions: Record<string, string>;
   scores: Record<string, number>;
-  description: string;
-  condition: string;
-  link: string;
+  description: string | null;
+  condition: string | null;
+  link: string | null;
 }
 
 export interface TcasRoundGroup {
@@ -91,37 +92,37 @@ export interface UniversityApiResponse {
 }
 
 export interface ProgramApiResponse {
-  program_id: string;
-  university_id: string;
-  university_name_th: string;
-  university_name_en: string;
-  campus_name_th: string;
-  campus_name_en: string;
-  faculty_id: string;
-  faculty_name_th: string;
-  faculty_name_en: string;
-  group_field_id: string;
-  group_field_th: string;
-  field_id: string;
-  field_name_th: string;
-  field_name_en: string;
-  program_name_th: string;
-  program_name_en: string;
-  program_type_name_th: string;
-  cost: string;
-  graduate_rate: string;
-  employment_rate: string;
-  median_salary: string;
+  program_id: string | null;
+  university_id: string | null;
+  university_name_th: string | null;
+  university_name_en: string | null;
+  campus_name_th: string | null;
+  campus_name_en: string | null;
+  faculty_id: string | null;
+  faculty_name_th: string | null;
+  faculty_name_en: string | null;
+  group_field_id: string | null;
+  group_field_th: string | null;
+  field_id: string | null;
+  field_name_th: string | null;
+  field_name_en: string | null;
+  program_name_th: string | null;
+  program_name_en: string | null;
+  program_type_name_th: string | null;
+  cost: string | null;
+  graduate_rate: string | null;
+  employment_rate: string | null;
+  median_salary: string | null;
 }
 
 export interface RoundProjectApiResponse {
   project_id: string;
   project_name_th: string;
   type: string; // e.g., "1_2569" (roundNumber_year)
-  receive_student_number: number;
-  min_gpax: number | null;
+  receive_student_number: string | number;
+  min_gpax: string | number | null;
   score_conditions: Record<string, string> | null;
-  scores: Record<string, number> | null;
+  scores: Record<string, string | number> | null;
   description: string;
   condition: string;
   link: string;
