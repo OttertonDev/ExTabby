@@ -629,25 +629,7 @@ export function filterPrograms(
 
   // Apply field filter
   if (filters.fieldId) {
-    console.log('[TCAS Filter] Filtering by fieldId:', filters.fieldId);
-    const beforeCount = results.length;
-    results = results.filter((p) => {
-      const key = getSimpleFieldKey(p);
-      const matches = key === filters.fieldId;
-
-      // Debug IT filter results
-      if (filters.fieldId === 'information-technology' && matches) {
-        console.log('[TCAS Filter] IT match:', {
-          programName: p.programNameTh,
-          fieldNameTh: p.fieldNameTh,
-          fieldNameEn: p.fieldNameEn,
-          computedKey: key
-        });
-      }
-
-      return matches;
-    });
-    console.log('[TCAS Filter] After field filter:', results.length, '/', beforeCount, 'programs');
+    results = results.filter((p) => getSimpleFieldKey(p) === filters.fieldId);
   }
 
   // Apply text search if query exists
@@ -888,54 +870,20 @@ export function getFieldOptions(
   programs: TcasProgram[],
   universityId?: string | null
 ): TcasFilterOption[] {
-  console.log('[TCAS] getFieldOptions called with', programs.length, 'programs, universityId:', universityId);
-
   const uniqueFields = new Map<string, string>();
 
-  const filteredPrograms = programs
-    .filter((program) => !universityId || program.universityId === universityId);
-
-  console.log('[TCAS] After university filter:', filteredPrograms.length, 'programs');
-
-  // Debug: Log programs that might be miscategorized
-  const debugPrograms = filteredPrograms.filter(p =>
-    p.programNameTh?.includes('วิทยาระเบียน') ||
-    p.fieldNameTh?.includes('วิทยาระเบียน')
-  );
-
-  console.log('[TCAS] Found', debugPrograms.length, 'วิทยาระเบียน programs');
-
-  if (debugPrograms.length > 0) {
-    console.log('[TCAS Debug] วิทยาระเบียน programs:');
-    debugPrograms.forEach(p => {
-      const key = getSimpleFieldKey(p);
-      const label = getSimpleFieldLabel(p);
-      console.log({
-        programName: p.programNameTh,
-        fieldNameTh: p.fieldNameTh,
-        fieldNameEn: p.fieldNameEn,
-        groupFieldTh: p.groupFieldTh,
-        facultyNameTh: p.facultyNameTh,
-        computedKey: key,
-        computedLabel: label
-      });
+  programs
+    .filter((program) => !universityId || program.universityId === universityId)
+    .forEach((program) => {
+      const key = getSimpleFieldKey(program);
+      if (!uniqueFields.has(key)) {
+        uniqueFields.set(key, getSimpleFieldLabel(program));
+      }
     });
-  }
 
-  filteredPrograms.forEach((program) => {
-    const key = getSimpleFieldKey(program);
-    if (!uniqueFields.has(key)) {
-      uniqueFields.set(key, getSimpleFieldLabel(program));
-    }
-  });
-
-  const result = Array.from(uniqueFields.entries())
+  return Array.from(uniqueFields.entries())
     .map(([key, label]) => ({ key, label }))
     .sort((a, b) => compareEnglish(a.label, b.label));
-
-  console.log('[TCAS] Returning', result.length, 'field options:', result.map(r => r.label));
-
-  return result;
 }
 
 // ============================================================================
