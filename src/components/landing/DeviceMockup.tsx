@@ -1,7 +1,7 @@
 /** Device mockup: Desktop (DISPLAY_MOCK.png) + Phone (SAM_MOCK.png) layered */
 export function DeviceMockup() {
   return (
-    <div className="relative mx-auto w-full max-w-4xl select-none">
+    <div className="relative w-full max-w-5xl select-none">
       {/* Desktop mockup */}
       <div className="w-full">
         <img

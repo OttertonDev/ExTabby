@@ -41,7 +41,7 @@ export function LandingPage() {
 
       {/* ── Header ── */}
       <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 lg:px-8 xl:px-12">
           {/* Logo */}
           <div className="flex items-center gap-2.5">
             <img src={tabbyAssets.icon} alt="Tabby" className="size-8 rounded-full object-cover" />
@@ -123,7 +123,7 @@ export function LandingPage() {
       </header>
 
       {/* ── Hero ── */}
-      <section className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-16 md:grid-cols-2 md:py-28">
+      <section className="mx-auto grid max-w-7xl items-center gap-12 px-6 py-16 md:grid-cols-2 md:py-28 lg:gap-16 lg:px-8 xl:px-12">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }}>
           <h1
             className="font-display text-display-small font-black leading-tight sm:text-display-medium md:text-display-large"
@@ -148,15 +148,15 @@ export function LandingPage() {
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, ease, delay: 0.08 }}
-          className="mx-auto w-full max-w-xs sm:max-w-sm md:max-w-md"
+          className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl"
         >
           <DeviceMockup />
         </motion.div>
       </section>
 
       {/* ── Features ── */}
-      <section className="bg-surface-variant/50 px-6 py-16">
-        <div className="mx-auto max-w-6xl">
+      <section className="bg-surface-variant/50 px-6 py-16 lg:px-8 xl:px-12">
+        <div className="mx-auto max-w-7xl">
           <motion.h2
             initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.4, ease }}
@@ -182,7 +182,7 @@ export function LandingPage() {
       </section>
 
       {/* ── FAQ ── */}
-      <section id="faq" className="mx-auto max-w-3xl px-6 py-16">
+      <section id="faq" className="mx-auto max-w-3xl px-6 py-16 lg:px-8 xl:px-12">
         <h2 className="mb-8 font-display text-headline-medium font-black" style={{ fontVariationSettings: '"wght" 1000' }}>FAQ</h2>
         {[
           { q: 'Do I need the Android app?', a: 'Yes — Tabby Web is a companion to the Android app. Your data syncs from the app.' },
@@ -198,8 +198,8 @@ export function LandingPage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-border/50 px-6 py-8">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4">
+      <footer className="border-t border-border/50 px-6 py-8 lg:px-8 xl:px-12">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <img src={tabbyAssets.icon} alt="" className="size-6 rounded-full object-cover" />
             <span className="text-sm font-bold text-muted-foreground">Tabby Web</span>
