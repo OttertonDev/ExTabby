@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { tabbyAssets } from '@/lib/tabby';
 import { signInWithGoogle, DEMO_MODE_STORAGE_KEY, notifyAuthChanged } from '@/lib/auth';
+import { DeviceMockup } from '@/components/landing/DeviceMockup';
 
 const FEATURES = [
   { icon: '📅', title: 'Timetable', desc: 'See your weekly schedule at a glance, synced directly from the Android app.' },
@@ -149,9 +150,7 @@ export function LandingPage() {
           transition={{ duration: 0.5, ease, delay: 0.08 }}
           className="mx-auto w-full max-w-xs sm:max-w-sm md:max-w-md"
         >
-          <div className="aspect-square overflow-hidden rounded-[2.5rem] bg-tabby-mint shadow-elevation-3">
-            <img src={tabbyAssets.welcome} alt="Tabby mascot" className="h-full w-full object-cover" />
-          </div>
+          <DeviceMockup />
         </motion.div>
       </section>
 
