@@ -1,4 +1,4 @@
-/** Device mockup: Desktop (DISPLAY_MOCK.png) + Phone (SAM_MOCK.png) layered */
+/** Device mockup: desktop, phone, and watch product surfaces layered together. */
 export function DeviceMockup() {
   return (
     <div className="relative w-full max-w-5xl select-none">
@@ -17,6 +17,15 @@ export function DeviceMockup() {
           src="/tabby-assets/SAM_MOCK.png"
           alt="Tabby mobile app"
           className="w-full h-auto"
+        />
+      </div>
+
+      {/* Watch mockup - grounded with the phone and shifted farther right */}
+      <div className="absolute bottom-[2%] right-[-18%] z-10 w-[32%] md:right-[-22%] md:w-[34%]">
+        <img
+          src="/tabby-assets/WATCH_MOCK.png"
+          alt="Tabby smartwatch app"
+          className="h-auto w-full"
         />
       </div>
     </div>
